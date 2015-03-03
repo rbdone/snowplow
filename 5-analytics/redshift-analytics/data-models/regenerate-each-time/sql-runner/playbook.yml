@@ -1,0 +1,13 @@
+:steps:
+  - :name: Schemas
+    :queries:
+      - :name: Schemas
+        :file: snowplow/5-analytics/redshift-analytics/data-models/regenerate-each-time/sql/schemas.sql
+  - :name: Sessions
+    :queries:
+      - :name: Sessions
+        :file: snowplow/5-analytics/redshift-analytics/data-models/regenerate-each-time/sql/sessions.sql
+  - :name: Visitors
+    :queries:
+      - :name: Visitors
+        :file: snowplow/5-analytics/redshift-analytics/data-models/regenerate-each-time/sql/visitors.sql
