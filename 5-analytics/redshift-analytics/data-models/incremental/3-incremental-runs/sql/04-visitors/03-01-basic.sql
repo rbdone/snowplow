@@ -25,12 +25,12 @@ CREATE TABLE snowplow_intermediary.visitors_basic
   AS (
     SELECT
 		  domain_userid,
-		  MIN(collector_tstamp) AS first_touch_tstamp,
-		  MAX(collector_tstamp) AS last_touch_tstamp,
-		  COUNT(*) AS event_count,
+      MIN(collector_tstamp) AS first_touch_tstamp,
+      MAX(collector_tstamp) AS last_touch_tstamp,
+      COUNT(*) AS event_count,
       MAX(domain_sessionidx) AS session_count,
-		  SUM(CASE WHEN event = 'page_view' THEN 1 ELSE 0 END) AS page_view_count,
-		  COUNT(DISTINCT(FLOOR(EXTRACT (EPOCH FROM collector_tstamp)/30)))/2::FLOAT AS time_engaged_with_minutes
+      SUM(CASE WHEN event = 'page_view' THEN 1 ELSE 0 END) AS page_view_count,
+      COUNT(DISTINCT(FLOOR(EXTRACT (EPOCH FROM collector_tstamp)/30)))/2::FLOAT AS time_engaged_with_minutes
     FROM snowplow_landing.events
     WHERE domain_userid IS NOT NULL -- Do not aggregate NULL
       AND etl_tstamp IN (SELECT etl_tstamp FROM snowplow_intermediary.distinct_etl_tstamps) -- Prevent processing data added after this batch started
