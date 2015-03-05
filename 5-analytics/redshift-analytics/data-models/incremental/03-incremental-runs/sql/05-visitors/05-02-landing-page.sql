@@ -13,24 +13,26 @@
 -- Copyright: Copyright (c) 2013-2015 Snowplow Analytics Ltd
 -- License: Apache License Version 2.0
 
--- The visitors_basic table contains one line per individual website visitor (in this batch).
+-- The visitors_landing_page table contains one line per individual website visitor (in this batch).
 -- The standard model identifies visitors using only a first party cookie.
 
--- First, create a basic table with simple information per visitor that can be derived from a single table scan.
+-- Next, create a table with landing page per visitor
 
-DROP TABLE IF EXISTS snowplow_intermediary.visitors_basic;
-CREATE TABLE snowplow_intermediary.visitors_basic
+DROP TABLE IF EXISTS snowplow_intermediary.visitors_landing_page;
+CREATE TABLE snowplow_intermediary.visitors_landing_page
   DISTKEY (blended_user_id) -- Optimized to join on other session_intermediary.visitors_X tables
-  SORTKEY (blended_user_id, first_touch_tstamp) -- Optimized to join on other session_intermediary.visitors_X tables
+  SORTKEY (blended_user_id) -- Optimized to join on other session_intermediary.visitors_X tables
   AS (
     SELECT
-		  blended_user_id,
-      MIN(collector_tstamp) AS first_touch_tstamp,
-      MAX(collector_tstamp) AS last_touch_tstamp,
-      COUNT(*) AS event_count,
-      MAX(domain_sessionidx) AS session_count,
-      SUM(CASE WHEN event = 'page_view' THEN 1 ELSE 0 END) AS page_view_count,
-      COUNT(DISTINCT(FLOOR(EXTRACT (EPOCH FROM collector_tstamp)/30)))/2::FLOAT AS time_engaged_with_minutes
-    FROM snowplow_intermediary.events_enriched
-    GROUP BY 1
+      blended_user_id,
+      page_urlhost,
+      page_urlpath
+    FROM (
+      SELECT
+        blended_user_id,
+        FIRST_VALUE(page_urlhost) OVER (PARTITION BY domain_userid ORDER BY dvce_tstamp, event_id ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS page_urlhost,
+        FIRST_VALUE(page_urlpath) OVER (PARTITION BY domain_userid ORDER BY dvce_tstamp, event_id ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS page_urlpath
+      FROM snowplow_intermediary.events_enriched_final
+    ) AS a
+    GROUP BY 1,2,3
   );

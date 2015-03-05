@@ -41,11 +41,8 @@ CREATE TABLE snowplow_intermediary.sessions_source
         RANK() OVER (PARTITION BY domain_userid, domain_sessionidx
           ORDER BY dvce_tstamp, mkt_source, mkt_medium, mkt_term, mkt_content, mkt_campaign, refr_source, refr_medium, refr_term, refr_urlhost, refr_urlpath) AS rank
       FROM
-        snowplow_landing.events
-      WHERE
-        etl_tstamp IN (SELECT etl_tstamp FROM snowplow_intermediary.distinct_etl_tstamps) -- Prevent processing data added after this batch started
-        AND collector_tstamp > '2000-01-01' -- Make sure collector_tstamp has a reasonable value, can otherwise cause SQL errors
-        AND refr_medium != 'internal' -- Not an internal referer
+        snowplow_intermediary.events_enriched_final
+      WHERE refr_medium != 'internal' -- Not an internal referer
         AND (
           NOT(refr_medium IS NULL OR refr_medium = '') OR
           NOT (

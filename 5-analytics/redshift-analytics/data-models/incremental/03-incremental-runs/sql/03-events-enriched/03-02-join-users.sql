@@ -13,21 +13,16 @@
 -- Copyright: Copyright (c) 2013-2015 Snowplow Analytics Ltd
 -- License: Apache License Version 2.0
 
--- Enrich events with user_id, easy to extend to include unstructured events as well
-
-DROP TABLE IF EXISTS snowplow_intermediary.events_enriched;
-CREATE TABLE snowplow_intermediary.events_enriched
-  DISTKEY (blended_user_id) -- this is domain_userid when user_id is NULL
-  SORTKEY (blended_user_id, collector_tstamp)
+DROP TABLE IF EXISTS snowplow_intermediary.events_enriched_final;
+CREATE TABLE snowplow_intermediary.events_enriched_final
+  DISTKEY (domain_userid)
+  SORTKEY (domain_userid, domain_sessionidx, collector_tstamp)
   AS (
     SELECT
       COALESCE(u.inferred_user_id, e.domain_userid) AS blended_user_id,
       u.inferred_user_id,
       e.*
-    FROM snowplow_landing.events e
+    FROM
+      snowplow_intermediary.events_enriched e
     LEFT JOIN snowplow_intermediary.cookie_id_to_user_id_map u ON u.domain_userid = e.domain_userid
-    WHERE e.domain_userid IS NOT NULL -- Do not aggregate NULL
-      AND e.domain_sessionidx IS NOT NULL -- Do not aggregate NULL
-      AND e.etl_tstamp IN (SELECT etl_tstamp FROM snowplow_intermediary.distinct_etl_tstamps) -- Prevent processing data added after this batch started
-      AND e.collector_tstamp > '2000-01-01' -- Make sure collector_tstamp has a reasonable value, can otherwise cause SQL errors
   );

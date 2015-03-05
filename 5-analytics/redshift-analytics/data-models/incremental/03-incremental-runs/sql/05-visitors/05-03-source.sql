@@ -41,7 +41,7 @@ CREATE TABLE snowplow_intermediary.visitors_source
         dvce_tstamp, -- Will not be included in the consolidated sessions_new
         RANK() OVER (PARTITION BY blended_user_id
           ORDER BY dvce_tstamp, mkt_source, mkt_medium, mkt_term, mkt_content, mkt_campaign, refr_source, refr_medium, refr_term, refr_urlhost, refr_urlpath) AS rank
-      FROM snowplow_intermediary.events_enriched
+      FROM snowplow_intermediary.events_enriched_final
       WHERE refr_medium != 'internal' -- Not an internal referer
         AND (
           NOT(refr_medium IS NULL OR refr_medium = '') OR

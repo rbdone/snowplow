@@ -31,6 +31,6 @@ INSERT INTO snowplow_pivots.structured_events
     se_label,
     se_property,
     se_value
-  FROM snowplow_intermediary.events_enriched
+  FROM snowplow_intermediary.events_enriched_final
   WHERE event = 'struct' -- Restrict to structured events
 );

@@ -13,11 +13,11 @@
 -- Copyright: Copyright (c) 2013-2015 Snowplow Analytics Ltd
 -- License: Apache License Version 2.0
 
--- The sessions_landing_page table contains one line per session (in this batch) and assigns a landing page to each session.
+-- The sessions_exit_page table contains one line per session (in this batch) and assigns an exit page to each session.
 -- The standard model identifies sessions using only first party cookies and session domain indexes.
 
-DROP TABLE IF EXISTS snowplow_intermediary.sessions_landing_page;
-CREATE TABLE snowplow_intermediary.sessions_landing_page 
+DROP TABLE IF EXISTS snowplow_intermediary.sessions_exit_page;
+CREATE TABLE snowplow_intermediary.sessions_exit_page 
   DISTKEY (domain_userid) -- Optimized to join on other session_intermediary.session_X tables
   SORTKEY (domain_userid, domain_sessionidx) -- Optimized to join on other session_intermediary.session_X tables
   AS (
@@ -27,14 +27,12 @@ CREATE TABLE snowplow_intermediary.sessions_landing_page
       page_urlhost, 
       page_urlpath 
     FROM (
-      SELECT -- 1. Take first value for landing page from each session
+      SELECT -- 1. Take first value for exit page from each session
         domain_userid,
         domain_sessionidx,
-        FIRST_VALUE(page_urlhost) OVER (PARTITION BY domain_userid, domain_sessionidx ORDER BY dvce_tstamp, event_id ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS page_urlhost,
-        FIRST_VALUE(page_urlpath) OVER (PARTITION BY domain_userid, domain_sessionidx ORDER BY dvce_tstamp, event_id ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS page_urlpath
-      FROM snowplow_landing.events
-      WHERE etl_tstamp IN (SELECT etl_tstamp FROM snowplow_intermediary.distinct_etl_tstamps) -- Prevent processing data added after this batch started
-        AND collector_tstamp > '2000-01-01' -- Make sure collector_tstamp has a reasonable value, can otherwise cause SQL errors
+        LAST_VALUE(page_urlhost) OVER (PARTITION BY domain_userid, domain_sessionidx ORDER BY dvce_tstamp, event_id ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS page_urlhost,
+        LAST_VALUE(page_urlpath) OVER (PARTITION BY domain_userid, domain_sessionidx ORDER BY dvce_tstamp, event_id ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS page_urlpath
+      FROM snowplow_intermediary.events_enriched_final
     ) AS a
     GROUP BY 1,2,3,4
   );
