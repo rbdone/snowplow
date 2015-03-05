@@ -13,27 +13,24 @@
 -- Copyright: Copyright (c) 2013-2015 Snowplow Analytics Ltd
 -- License: Apache License Version 2.0
 
--- Finalize page views that completed at least 1 hour before max_tstamp
+-- A simple table that contains one row per structured event.
+-- To be merged with the other tables in snowplow_pivots on domain_userid and domain_sessionidx.
 
-BEGIN;
-  INSERT INTO snowplow_pivots.page_views (
-    SELECT
-      domain_userid,
-      domain_sessionidx,
-      page_urlhost,
-      page_urlpath,
-      first_touch_tstamp,
-      last_touch_tstamp,
-      event_count,
-      page_view_count,
-      page_ping_count,
-      time_engaged_with_minutes,
-      min_tstamp AS processing_run_min_collector_tstamp,
-      max_tstamp AS processing_run_max_collector_tstamp
-    FROM snowplow_intermediary.page_views_to_load_complete 
-    WHERE (EXTRACT(EPOCH FROM (max_tstamp - last_touch_tstamp)))/60 > 60
-  );
-
-  DELETE FROM snowplow_intermediary.page_views_to_load_complete
-  WHERE (EXTRACT(EPOCH FROM (max_tstamp - last_touch_tstamp)))/60 > 60;
-COMMIT;
+INSERT INTO snowplow_pivots.structured_events
+(
+  SELECT
+    blended_user_id,
+    inferred_user_id,
+    domain_userid,
+    domain_sessionidx,
+    etl_tstamp, -- For debugging
+    dvce_tstamp,
+    collector_tstamp,
+    se_category,
+    se_action,
+    se_label,
+    se_property,
+    se_value
+  FROM snowplow_intermediary.events_enriched
+  WHERE event = 'struct' -- Restrict to structured events
+);

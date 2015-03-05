@@ -22,6 +22,8 @@
 INSERT INTO snowplow_intermediary.page_views_to_load
 (
   SELECT
+    n.blended_user_id,
+    n.inferred_user_id,
     n.domain_userid,
     n.domain_sessionidx,
     n.page_urlhost,

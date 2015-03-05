@@ -20,11 +20,11 @@
 
 DROP TABLE IF EXISTS snowplow_intermediary.visitors_new;
 CREATE TABLE snowplow_intermediary.visitors_new
-  DISTKEY (domain_userid) -- Optimized to join on other session_intermediary.visitors_X tables
-  SORTKEY (domain_userid, first_touch_tstamp) -- Optimized to join on other session_intermediary.visitors_X tables
+  DISTKEY (blended_user_id) -- Optimized to join on other session_intermediary.visitors_X tables
+  SORTKEY (blended_user_id, first_touch_tstamp) -- Optimized to join on other session_intermediary.visitors_X tables
   AS (
     SELECT 
-      b.domain_userid,
+      b.blended_user_id,
       b.first_touch_tstamp,
       b.last_touch_tstamp,
 		  b.event_count,
@@ -44,6 +44,6 @@ CREATE TABLE snowplow_intermediary.visitors_new
       s.refr_urlhost,
       s.refr_urlpath
     FROM snowplow_intermediary.visitors_basic b
-    LEFT JOIN snowplow_intermediary.visitors_landing_page l ON b.domain_userid = l.domain_userid
-		LEFT JOIN snowplow_intermediary.visitors_source s       ON b.domain_userid = s.domain_userid
+    LEFT JOIN snowplow_intermediary.visitors_landing_page l ON b.blended_user_id = l.blended_user_id
+		LEFT JOIN snowplow_intermediary.visitors_source s       ON b.blended_user_id = s.blended_user_id
   );

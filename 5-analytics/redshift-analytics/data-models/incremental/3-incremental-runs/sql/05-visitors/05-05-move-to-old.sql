@@ -13,13 +13,21 @@
 -- Copyright: Copyright (c) 2013-2015 Snowplow Analytics Ltd
 -- License: Apache License Version 2.0
 
+-- There is no in_progress table for visitors, because a visitor can always come back.
+-- The visitors_new table will therefore have to be merged into the visitors pivot table.
 
--- In the incremental model, new data arrives in the snowplow_landing schema and is moved to atomic after it
--- has been processed. Processed data is ready for use in a BI or pivot tool and stored in the snowplow_pivots
--- schema. The snowplow_intermediary schema is used to store data while processing.
+-- First, move the current visitors table to visitors_old.
 
+BEGIN;
+DROP TABLE IF EXISTS snowplow_intermediary.visitors_old;
+CREATE TABLE snowplow_intermediary.visitors_old
+  DISTKEY (blended_user_id) -- Optimized to join on other session_intermediary.visitors_X tables
+  SORTKEY (blended_user_id, first_touch_tstamp) -- Optimized to join on other session_intermediary.visitors_X tables
+  AS (
+    SELECT
+      *
+    FROM snowplow_pivots.visitors 
+  );
 
--- Create the schemas:
-CREATE SCHEMA IF NOT EXISTS snowplow_landing;
-CREATE SCHEMA IF NOT EXISTS snowplow_intermediary;
-CREATE SCHEMA IF NOT EXISTS snowplow_pivots;
+DELETE FROM snowplow_pivots.visitors;
+COMMIT;

@@ -13,27 +13,21 @@
 -- Copyright: Copyright (c) 2013-2015 Snowplow Analytics Ltd
 -- License: Apache License Version 2.0
 
--- The visitors_basic table contains one line per individual website visitor (in this batch).
--- The standard model identifies visitors using only a first party cookie.
+-- Enrich events with user_id, easy to extend to include unstructured events as well
 
--- First, create a basic table with simple information per visitor that can be derived from a single table scan.
-
-DROP TABLE IF EXISTS snowplow_intermediary.visitors_basic;
-CREATE TABLE snowplow_intermediary.visitors_basic
-  DISTKEY (domain_userid) -- Optimized to join on other session_intermediary.visitors_X tables
-  SORTKEY (domain_userid) -- Optimized to join on other session_intermediary.visitors_X tables
+DROP TABLE IF EXISTS snowplow_intermediary.events_enriched;
+CREATE TABLE snowplow_intermediary.events_enriched
+  DISTKEY (blended_user_id) -- this is domain_userid when user_id is NULL
+  SORTKEY (blended_user_id, collector_tstamp)
   AS (
     SELECT
-		  domain_userid,
-      MIN(collector_tstamp) AS first_touch_tstamp,
-      MAX(collector_tstamp) AS last_touch_tstamp,
-      COUNT(*) AS event_count,
-      MAX(domain_sessionidx) AS session_count,
-      SUM(CASE WHEN event = 'page_view' THEN 1 ELSE 0 END) AS page_view_count,
-      COUNT(DISTINCT(FLOOR(EXTRACT (EPOCH FROM collector_tstamp)/30)))/2::FLOAT AS time_engaged_with_minutes
-    FROM snowplow_landing.events
+      COALESCE(u.user_id, e.domain_userid) AS blended_user_id,
+      u.user_id AS inferred_user_id,
+      e.*
+    FROM snowplow_landing.events e
+    LEFT JOIN snowplow_intermediary.cookie_id_to_user_id_map u ON u.domain_userid = e.domain_userid
     WHERE domain_userid IS NOT NULL -- Do not aggregate NULL
+      AND domain_sessionidx IS NOT NULL -- Do not aggregate NULL
       AND etl_tstamp IN (SELECT etl_tstamp FROM snowplow_intermediary.distinct_etl_tstamps) -- Prevent processing data added after this batch started
       AND collector_tstamp > '2000-01-01' -- Make sure collector_tstamp has a reasonable value, can otherwise cause SQL errors
-    GROUP BY 1
   );

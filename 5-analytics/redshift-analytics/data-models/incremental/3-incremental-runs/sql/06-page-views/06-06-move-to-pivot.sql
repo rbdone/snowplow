@@ -13,15 +13,29 @@
 -- Copyright: Copyright (c) 2013-2015 Snowplow Analytics Ltd
 -- License: Apache License Version 2.0
 
--- There is no in_progress table for visitors, because a visitor can always come back.
--- The visitors_new table will therefore have to be merged into the visitors pivot table.
+-- Finalize page views that completed at least 1 hour before max_tstamp
 
--- First, load all entires from visitors_old that do NOT have corresponding entries in visitors_new.
+BEGIN;
+  INSERT INTO snowplow_pivots.page_views (
+    SELECT
+      blended_user_id,
+      inferred_user_id,
+      domain_userid,
+      domain_sessionidx,
+      page_urlhost,
+      page_urlpath,
+      first_touch_tstamp,
+      last_touch_tstamp,
+      event_count,
+      page_view_count,
+      page_ping_count,
+      time_engaged_with_minutes,
+      min_tstamp AS processing_run_min_collector_tstamp,
+      max_tstamp AS processing_run_max_collector_tstamp
+    FROM snowplow_intermediary.page_views_to_load_complete 
+    WHERE (EXTRACT(EPOCH FROM (max_tstamp - last_touch_tstamp)))/60 > 60
+  );
 
-INSERT INTO snowplow_pivots.visitors (
-  SELECT
-    o.*
-  FROM snowplow_intermediary.visitors_old o
-  LEFT JOIN snowplow_intermediary.visitors_new n ON o.domain_userid = n.domain_userid
-  WHERE n.domain_userid IS NULL -- Only copy over rows for visitors that do not feature in the new dataset
-);
+  DELETE FROM snowplow_intermediary.page_views_to_load_complete
+  WHERE (EXTRACT(EPOCH FROM (max_tstamp - last_touch_tstamp)))/60 > 60;
+COMMIT;

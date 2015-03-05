@@ -16,18 +16,29 @@
 -- There is no in_progress table for visitors, because a visitor can always come back.
 -- The visitors_new table will therefore have to be merged into the visitors pivot table.
 
--- First, move the current visitors table to visitors_old.
+-- First, combinate entires for visitors that occur in both tables.
 
-BEGIN;
-DROP TABLE IF EXISTS snowplow_intermediary.visitors_old;
-CREATE TABLE snowplow_intermediary.visitors_old
-  DISTKEY (domain_userid) -- Optimized to join on other session_intermediary.visitors_X tables
-  SORTKEY (domain_userid, first_touch_tstamp) -- Optimized to join on other session_intermediary.visitors_X tables
-  AS (
-    SELECT
-      *
-    FROM snowplow_pivots.visitors 
-  );
-
-DELETE FROM snowplow_pivots.visitors;
-COMMIT;
+INSERT INTO snowplow_pivots.visitors (
+  SELECT 
+    n.blended_user_id,
+    o.first_touch_tstamp,
+    n.last_touch_tstamp,
+    o.event_count + n.event_count AS event_count,
+    o.session_count + n.session_count AS session_count,
+    o.page_view_count + n.page_view_count AS page_view_count,
+    o.time_engaged_with_minutes + n.time_engaged_with_minutes AS time_engaged_with_minutes,
+    o.landing_page_host,
+    o.landing_page_path,
+    o.mkt_source,
+    o.mkt_medium,
+    o.mkt_term,
+    o.mkt_content,
+    o.mkt_campaign,
+    o.refr_source,
+    o.refr_medium,
+    o.refr_term,
+    o.refr_urlhost,
+    o.refr_urlpath
+  FROM snowplow_intermediary.visitors_new n
+  JOIN snowplow_intermediary.visitors_old o ON n.blended_user_id = o.blended_user_id -- INNER JOIN so that we get visitors that have entries in both tables
+);

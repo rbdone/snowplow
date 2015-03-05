@@ -20,14 +20,14 @@
 
 DROP TABLE IF EXISTS snowplow_intermediary.visitors_source;
 CREATE TABLE snowplow_intermediary.visitors_source
-  DISTKEY (domain_userid) -- Optimized to join on other session_intermediary.visitors_X tables
-  SORTKEY (domain_userid) -- Optimized to join on other session_intermediary.visitors_X tables
+  DISTKEY (blended_user_id) -- Optimized to join on other session_intermediary.visitors_X tables
+  SORTKEY (blended_user_id) -- Optimized to join on other session_intermediary.visitors_X tables
   AS (
     SELECT
       *
     FROM (
       SELECT
-        domain_userid,
+        blended_user_id,
         mkt_source,
         mkt_medium,
         mkt_term,
@@ -41,12 +41,8 @@ CREATE TABLE snowplow_intermediary.visitors_source
         dvce_tstamp, -- Will not be included in the consolidated sessions_new
         RANK() OVER (PARTITION BY domain_userid
           ORDER BY dvce_tstamp, mkt_source, mkt_medium, mkt_term, mkt_content, mkt_campaign, refr_source, refr_medium, refr_term, refr_urlhost, refr_urlpath) AS rank
-      FROM
-        snowplow_landing.events
-      WHERE domain_userid IS NOT NULL -- Do not aggregate NULL
-        AND etl_tstamp IN (SELECT etl_tstamp FROM snowplow_intermediary.distinct_etl_tstamps) -- Prevent processing data added after this batch started
-        AND collector_tstamp > '2000-01-01' -- Make sure collector_tstamp has a reasonable value, can otherwise cause SQL errors
-        AND refr_medium != 'internal' -- Not an internal referer
+      FROM snowplow_intermediary.events_enriched
+      WHERE refr_medium != 'internal' -- Not an internal referer
         AND (
           NOT(refr_medium IS NULL OR refr_medium = '') OR
           NOT (

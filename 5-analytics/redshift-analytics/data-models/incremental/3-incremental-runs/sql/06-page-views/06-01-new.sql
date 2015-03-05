@@ -21,6 +21,8 @@ CREATE TABLE snowplow_intermediary.page_views_new
   SORTKEY (domain_userid, domain_sessionidx) -- Optimized to join on other session_intermediary.page_views_X tables
   AS (
     SELECT
+      blended_user_id,
+      inferred_user_id,
       domain_userid,
       domain_sessionidx,
       page_urlhost,
@@ -29,12 +31,8 @@ CREATE TABLE snowplow_intermediary.page_views_new
       MAX(collector_tstamp) AS last_touch_tstamp,
       COUNT(*) AS event_count,
       SUM(CASE WHEN event = 'page_view' THEN 1 ELSE 0 END) AS page_view_count,
-      SUM(CASE WHEN Event = 'page_ping' THEN 1 ELSE 0 END) AS page_ping_count,
+      SUM(CASE WHEN event = 'page_ping' THEN 1 ELSE 0 END) AS page_ping_count,
       COUNT(DISTINCT(FLOOR(EXTRACT (EPOCH FROM collector_tstamp)/30)))/2::FLOAT AS time_engaged_with_minutes
     FROM snowplow_landing.events
-    WHERE domain_userid IS NOT NULL -- Do not aggregate NULL
-      AND domain_sessionidx IS NOT NULL -- Do not aggregate NULL
-      AND etl_tstamp IN (SELECT etl_tstamp FROM snowplow_intermediary.distinct_etl_tstamps) -- Prevent processing data added after this batch started
-      AND collector_tstamp > '2000-01-01' -- Make sure collector_tstamp has a reasonable value, can otherwise cause SQL errors
-    GROUP BY 1,2,3,4
+    GROUP BY 1,2,3,4,5,6
   );

@@ -28,6 +28,8 @@ CREATE TABLE snowplow_intermediary.sessions_to_load
   SORTKEY (domain_userid, domain_sessionidx, session_start_tstamp)
   AS (
     SELECT
+      o.blended_user_id,
+      o.user_id,
       o.domain_userid,
       o.domain_sessionidx,
       o.etl_tstamp,

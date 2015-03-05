@@ -20,11 +20,11 @@
 
 DROP TABLE IF EXISTS snowplow_intermediary.visitors_landing_page;
 CREATE TABLE snowplow_intermediary.visitors_landing_page
-  DISTKEY (domain_userid) -- Optimized to join on other session_intermediary.visitors_X tables
-  SORTKEY (domain_userid) -- Optimized to join on other session_intermediary.visitors_X tables
+  DISTKEY (blended_user_id) -- Optimized to join on other session_intermediary.visitors_X tables
+  SORTKEY (blended_user_id) -- Optimized to join on other session_intermediary.visitors_X tables
   AS (
     SELECT
-      domain_userid,
+      blended_user_id,
       page_urlhost,
       page_urlpath
     FROM (
@@ -32,10 +32,7 @@ CREATE TABLE snowplow_intermediary.visitors_landing_page
         domain_userid,
         FIRST_VALUE(page_urlhost) OVER (PARTITION BY domain_userid ORDER BY dvce_tstamp, event_id ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS page_urlhost,
         FIRST_VALUE(page_urlpath) OVER (PARTITION BY domain_userid ORDER BY dvce_tstamp, event_id ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS page_urlpath
-      FROM snowplow_landing.events
-      WHERE domain_userid IS NOT NULL -- Do not aggregate NULL
-        AND etl_tstamp IN (SELECT etl_tstamp FROM snowplow_intermediary.distinct_etl_tstamps) -- Prevent processing data added after this batch started
-        AND collector_tstamp > '2000-01-01' -- Make sure collector_tstamp has a reasonable value, can otherwise cause SQL errors
+      FROM snowplow_intermediary.events_enriched
     ) AS a
     GROUP BY 1,2,3
   );

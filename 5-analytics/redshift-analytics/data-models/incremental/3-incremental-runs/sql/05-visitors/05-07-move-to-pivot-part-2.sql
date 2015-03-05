@@ -16,29 +16,13 @@
 -- There is no in_progress table for visitors, because a visitor can always come back.
 -- The visitors_new table will therefore have to be merged into the visitors pivot table.
 
--- First, combinate entires for visitors that occur in both tables.
+-- Next, load all entires from visitors_new that do NOT have corresponding entries in visitors_old.
 
 INSERT INTO snowplow_pivots.visitors (
-  SELECT 
-    n.domain_userid,
-    o.first_touch_tstamp,
-    n.last_touch_tstamp,
-    o.event_count + n.event_count AS event_count,
-    o.session_count + n.session_count AS session_count,
-    o.page_view_count + n.page_view_count AS page_view_count,
-    o.time_engaged_with_minutes + n.time_engaged_with_minutes AS time_engaged_with_minutes,
-    o.landing_page_host,
-    o.landing_page_path,
-    o.mkt_source,
-    o.mkt_medium,
-    o.mkt_term,
-    o.mkt_content,
-    o.mkt_campaign,
-    o.refr_source,
-    o.refr_medium,
-    o.refr_term,
-    o.refr_urlhost,
-    o.refr_urlpath
+  SELECT
+    n.*
   FROM snowplow_intermediary.visitors_new n
-  JOIN snowplow_intermediary.visitors_old o ON n.domain_userid = o.domain_userid -- INNER JOIN so that we get visitors that have entries in both tables
+  LEFT JOIN snowplow_intermediary.visitors_old o ON n.blended_user_id = o.blended_user_id
+  WHERE o.blended_user_id IS NULL -- Only copy over rows for visitors that do not feature in the old dataset
 );
+

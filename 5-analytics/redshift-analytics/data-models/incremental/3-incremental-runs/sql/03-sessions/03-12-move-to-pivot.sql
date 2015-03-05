@@ -19,6 +19,8 @@
 BEGIN;
 	INSERT INTO snowplow_pivots.sessions (
 		SELECT 
+      blended_user_id,
+      user_id,
       domain_userid,
       domain_sessionidx,
       etl_tstamp,

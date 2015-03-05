@@ -13,26 +13,15 @@
 -- Copyright: Copyright (c) 2013-2015 Snowplow Analytics Ltd
 -- License: Apache License Version 2.0
 
--- Move the remaining rows to in_progress.
+-- There is no in_progress table for visitors, because a visitor can always come back.
+-- The visitors_new table will therefore have to be merged into the visitors pivot table.
 
-BEGIN;
-  DROP TABLE IF EXISTS snowplow_intermediary.page_views_in_progress;
-  CREATE TABLE snowplow_intermediary.page_views_in_progress 
-    DISTKEY (domain_userid)
-    SORTKEY (domain_userid, domain_sessionidx)
-    AS (
-      SELECT -- All but min and max_tstamp
-        domain_userid,
-        domain_sessionidx,
-        page_urlhost,
-        page_urlpath,
-        first_touch_tstamp,
-        last_touch_tstamp,
-        event_count,
-        page_view_count,
-        page_ping_count,
-        time_engaged_with_minutes
-      FROM snowplow_intermediary.page_views_to_load_complete
-    );
-  DELETE FROM snowplow_intermediary.page_views_to_load_complete;
-COMMIT;
+-- First, load all entires from visitors_old that do NOT have corresponding entries in visitors_new.
+
+INSERT INTO snowplow_pivots.visitors (
+  SELECT
+    o.*
+  FROM snowplow_intermediary.visitors_old o
+  LEFT JOIN snowplow_intermediary.visitors_new n ON o.blended_user_id = n.blended_user_id
+  WHERE n.blended_user_id IS NULL -- Only copy over rows for visitors that do not feature in the new dataset
+);
