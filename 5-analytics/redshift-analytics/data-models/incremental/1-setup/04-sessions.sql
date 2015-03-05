@@ -15,6 +15,8 @@
 
 -- Create the snowplow_intermediary.sessions_in_progress table:
 CREATE TABLE IF NOT EXISTS snowplow_intermediary.sessions_in_progress (
+  blended_user_id varchar(255) encode runlength,
+  inferred_user_id varchar(255) encode runlength,
   domain_userid varchar(16),
   domain_sessionidx smallint,
   etl_tstamp timestamp,
@@ -82,6 +84,8 @@ SORTKEY (domain_userid, domain_sessionidx, session_start_tstamp);
 
 -- Create the snowplow_pivots.sessions table (has 2 extra fields):
 CREATE TABLE IF NOT EXISTS snowplow_pivots.sessions (
+  blended_user_id varchar(255) encode runlength,
+  inferred_user_id varchar(255) encode runlength,
   domain_userid varchar(16),
   domain_sessionidx smallint,
   etl_tstamp timestamp,

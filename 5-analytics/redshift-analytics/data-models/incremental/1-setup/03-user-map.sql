@@ -13,10 +13,10 @@
 -- Copyright: Copyright (c) 2013-2015 Snowplow Analytics Ltd
 -- License: Apache License Version 2.0
 
--- Create the snowplow_intermediary.sessions_in_progress table:
+-- Create the snowplow_intermediary.cookie_id_to_user_id_map table (used for identity stitching):
 CREATE TABLE IF NOT EXISTS snowplow_intermediary.cookie_id_to_user_id_map (
   domain_userid varchar(16),
-  user_id varchar(255) encode runlength
+  inferred_user_id varchar(255) encode runlength -- not
 )
 DISTSTYLE KEY
 DISTKEY (domain_userid)

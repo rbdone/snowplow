@@ -22,8 +22,8 @@ CREATE TABLE snowplow_intermediary.sessions_new
   SORTKEY (domain_userid, domain_sessionidx, session_start_tstamp) -- Optimized to join on other session_intermediary.session_X tables
   AS (
     SELECT
-      COALESCE(u.user_id, b.domain_userid) AS blended_user_id,
-      u.user_id,
+      COALESCE(u.inferred_user_id, b.domain_userid) AS blended_user_id, -- Equal to domain_userid if there is no identity stitching
+      u.inferred_user_id, -- NULL if there is no identity stitching
       b.domain_userid,
       b.domain_sessionidx,
       b.etl_tstamp,
@@ -78,7 +78,7 @@ CREATE TABLE snowplow_intermediary.sessions_new
       t.dvce_screenwidth,
       t.dvce_screenheight
     FROM      snowplow_intermediary.sessions_basic           AS b
-    LEFT JOIN snowplow_intermediary.cookie_id_to_user_id_map AS u ON s.domain_userid = u.domain_userid
+    LEFT JOIN snowplow_intermediary.cookie_id_to_user_id_map AS u ON b.domain_userid = u.domain_userid
     LEFT JOIN snowplow_intermediary.sessions_geo             AS g ON b.domain_userid = g.domain_userid AND b.domain_sessionidx = g.domain_sessionidx
     LEFT JOIN snowplow_intermediary.sessions_landing_page    AS l ON b.domain_userid = l.domain_userid AND b.domain_sessionidx = l.domain_sessionidx
     LEFT JOIN snowplow_intermediary.sessions_exit_page       AS e ON b.domain_userid = e.domain_userid AND b.domain_sessionidx = e.domain_sessionidx

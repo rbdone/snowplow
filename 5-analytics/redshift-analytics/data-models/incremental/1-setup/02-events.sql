@@ -16,7 +16,6 @@
 -- Copyright:   Copyright (c) 2013-2015 Snowplow Analytics Ltd
 -- License:     Apache License Version 2.0
 
-
 -- Create the snowplow_landing.events table:
 CREATE TABLE IF NOT EXISTS snowplow_landing.events (
   -- App

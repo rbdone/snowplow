@@ -24,7 +24,7 @@ BEGIN;
     AS (
       SELECT -- Every field, except earliest_tstamp and latest_tstamp
         blended_user_id,
-        user_id,
+        inferred_user_id,
         domain_userid,
         domain_sessionidx,
         etl_tstamp,

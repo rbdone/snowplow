@@ -24,7 +24,7 @@
 INSERT INTO snowplow_intermediary.sessions_to_load (
   SELECT
     n.blended_user_id,
-    n.user_id,
+    n.inferred_user_id,
     n.domain_userid,
     n.domain_sessionidx,
     n.etl_tstamp,

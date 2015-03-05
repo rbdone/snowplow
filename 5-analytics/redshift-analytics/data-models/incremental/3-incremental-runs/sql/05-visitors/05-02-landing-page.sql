@@ -29,7 +29,7 @@ CREATE TABLE snowplow_intermediary.visitors_landing_page
       page_urlpath
     FROM (
       SELECT
-        domain_userid,
+        blended_user_id,
         FIRST_VALUE(page_urlhost) OVER (PARTITION BY domain_userid ORDER BY dvce_tstamp, event_id ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS page_urlhost,
         FIRST_VALUE(page_urlpath) OVER (PARTITION BY domain_userid ORDER BY dvce_tstamp, event_id ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS page_urlpath
       FROM snowplow_intermediary.events_enriched

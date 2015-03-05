@@ -15,7 +15,7 @@
 
 -- Create the snowplow_pivots.visitors table:
 CREATE TABLE IF NOT EXISTS snowplow_pivots.visitors (
-  domain_userid varchar(16),
+  blended_user_id varchar(255) encode runlength,
 	first_touch_tstamp timestamp,
   last_touch_tstamp timestamp,
   event_count bigint,
@@ -39,5 +39,5 @@ CREATE TABLE IF NOT EXISTS snowplow_pivots.visitors (
   refr_urlpath varchar(1000) encode text32k
 )
 DISTSTYLE KEY
-DISTKEY (domain_userid)
-SORTKEY (domain_userid, first_touch_tstamp);
+DISTKEY (blended_user_id)
+SORTKEY (blended_user_id, first_touch_tstamp);

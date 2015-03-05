@@ -15,6 +15,8 @@
 
 -- Create the snowplow_pivots.structured_events table:
 CREATE TABLE IF NOT EXISTS snowplow_pivots.structured_events (
+  blended_user_id varchar(255) encode runlength,
+  inferred_user_id varchar(255) encode runlength,
   domain_userid varchar(16),
   domain_sessionidx smallint,
   etl_tstamp timestamp,

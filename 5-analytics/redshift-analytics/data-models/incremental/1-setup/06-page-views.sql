@@ -15,6 +15,8 @@
 
 -- Create the snowplow_intermediary.page_views_in_progress table:
 CREATE TABLE IF NOT EXISTS snowplow_intermediary.page_views_in_progress (
+  blended_user_id varchar(255) encode runlength,
+  inferred_user_id varchar(255) encode runlength,
   domain_userid varchar(16),
   domain_sessionidx smallint,
   page_urlhost varchar(255) encode text255,
@@ -32,6 +34,8 @@ SORTKEY (domain_userid, domain_sessionidx, first_touch_tstamp);
 
 -- Create the snowplow_pivots.page_views table:
 CREATE TABLE IF NOT EXISTS snowplow_pivots.page_views (
+  blended_user_id varchar(255) encode runlength,
+  inferred_user_id varchar(255) encode runlength,
   domain_userid varchar(16),
   domain_sessionidx smallint,
   page_urlhost varchar(255) encode text255,
