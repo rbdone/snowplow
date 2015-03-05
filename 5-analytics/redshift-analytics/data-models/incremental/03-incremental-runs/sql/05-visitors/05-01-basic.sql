@@ -24,7 +24,7 @@ CREATE TABLE snowplow_intermediary.visitors_basic
   SORTKEY (blended_user_id, first_touch_tstamp) -- Optimized to join on other session_intermediary.visitors_X tables
   AS (
     SELECT
-		  blended_user_id,
+      blended_user_id,
       MIN(collector_tstamp) AS first_touch_tstamp,
       MAX(collector_tstamp) AS last_touch_tstamp,
       COUNT(*) AS event_count,

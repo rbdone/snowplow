@@ -17,8 +17,8 @@
 -- The standard model identifies sessions using only first party cookies and session domain indexes.
 
 BEGIN;
-	INSERT INTO snowplow_pivots.sessions (
-		SELECT 
+  INSERT INTO snowplow_pivots.sessions (
+    SELECT 
       blended_user_id,
       inferred_user_id,
       domain_userid,
@@ -76,10 +76,10 @@ BEGIN;
       dvce_screenheight,
       min_tstamp AS processing_run_min_collector_tstamp, -- Included for debugging
       max_tstamp AS processing_run_max_collector_tstamp  -- Included for debugging
-		FROM snowplow_intermediary.sessions_to_load_complete
-		WHERE (EXTRACT(EPOCH FROM (max_tstamp - session_end_tstamp))/60 > 60) -- Where session completed 1 hour before processing run
-	);
+    FROM snowplow_intermediary.sessions_to_load_complete
+    WHERE (EXTRACT(EPOCH FROM (max_tstamp - session_end_tstamp))/60 > 60) -- Where session completed 1 hour before processing run
+  );
 
-	DELETE FROM snowplow_intermediary.sessions_to_load_complete
-	WHERE (EXTRACT(EPOCH FROM (max_tstamp - session_end_tstamp))/60 > 60); -- Where session completed 1 hour before processing run
+  DELETE FROM snowplow_intermediary.sessions_to_load_complete
+  WHERE (EXTRACT(EPOCH FROM (max_tstamp - session_end_tstamp))/60 > 60); -- Where session completed 1 hour before processing run
 COMMIT;
