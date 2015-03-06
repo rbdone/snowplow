@@ -9,11 +9,28 @@
 -- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 -- See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 --
--- Author(s): Yali Sassoon
+-- Authors: Yali Sassoon, Christophe Bogaert
 -- Copyright: Copyright (c) 2013-2015 Snowplow Analytics Ltd
 -- License: Apache License Version 2.0
 
-CREATE SCHEMA IF NOT EXISTS snowplow_pivots; -- schema with tables that can be directly interfaced via a BI / pivot tool
-
-CREATE SCHEMA IF NOT EXISTS snowplow_intermediary; --schema with intermediary tables
-
+DROP TABLE IF EXISTS snowplow_pivots.structured_events
+CREATE TABLE snowplow_pivots.structured_events
+  DISTKEY (domain_userid)
+  SORTKEY (domain_userid, domain_sessionidx)
+  AS (
+  SELECT
+    blended_user_id,
+    inferred_user_id,
+    domain_userid,
+    domain_sessionidx,
+    etl_tstamp, -- For debugging
+    dvce_tstamp,
+    collector_tstamp,
+    se_category,
+    se_action,
+    se_label,
+    se_property,
+    se_value
+  FROM snowplow_intermediary.events_enriched_final
+  WHERE event = 'struct' -- Restrict to structured events
+);
