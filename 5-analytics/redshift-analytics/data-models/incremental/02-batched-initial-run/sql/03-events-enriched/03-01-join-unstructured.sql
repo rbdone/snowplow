@@ -30,7 +30,6 @@ CREATE TABLE snowplow_intermediary.events_enriched
     WHERE e.domain_userid IS NOT NULL -- Do not aggregate NULL
       AND e.domain_userid <> '' -- Do not aggregate missing values
       AND e.domain_sessionidx IS NOT NULL -- Do not aggregate NULL
-      AND e.domain_sessionidx <> '' -- Do not aggregate missing values
       AND e.collector_tstamp > '2000-01-01' -- Make sure collector_tstamp has a reasonable value, can otherwise cause SQL errors
       AND e.collector_tstamp >= {{begin_tstamp}} -- For SQL Runner
       AND e.collector_tstamp < {{end_tstamp}} -- For SQL Runner
