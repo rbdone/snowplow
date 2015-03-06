@@ -18,6 +18,8 @@
 
 -- We do NOT join with unstructured events for the moment, but there WHERE clause removes some invalid data.
 
+-- THIS FILE IS DIFFERENT FROM THE INCREMENTAL MODEL
+
 DROP TABLE IF EXISTS snowplow_intermediary.events_enriched;
 CREATE TABLE snowplow_intermediary.events_enriched
   DISTKEY (domain_userid) -- Optimized to join cookie_id_to_user_id_map
@@ -26,11 +28,10 @@ CREATE TABLE snowplow_intermediary.events_enriched
     SELECT
       e.*
     FROM
-      snowplow_landing.events e
+      atomic.events e
     WHERE e.domain_userid IS NOT NULL -- Do not aggregate NULL
       AND e.domain_userid <> '' -- Do not aggregate missing values
       AND e.domain_sessionidx IS NOT NULL -- Do not aggregate NULL
       AND e.domain_sessionidx <> '' -- Do not aggregate missing values
-      AND e.etl_tstamp IN (SELECT etl_tstamp FROM snowplow_intermediary.distinct_etl_tstamps) -- Prevent processing data added after this batch started
       AND e.collector_tstamp > '2000-01-01' -- Make sure collector_tstamp has a reasonable value, can otherwise cause SQL errors
   );

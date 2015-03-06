@@ -13,11 +13,11 @@
 -- Copyright: Copyright (c) 2013-2015 Snowplow Analytics Ltd
 -- License: Apache License Version 2.0
 
--- Create the snowplow_intermediary.cookie_id_to_user_id_map table (used for identity stitching):
-CREATE TABLE IF NOT EXISTS snowplow_intermediary.cookie_id_to_user_id_map (
-  domain_userid varchar(16),
-  inferred_user_id varchar(255) encode runlength -- Most identitiy stitching models will infer the user_id
-)
-DISTSTYLE KEY
-DISTKEY (domain_userid)
-SORTKEY (domain_userid);
+-- In the incremental model, new data arrives in the snowplow_landing schema and is moved to atomic after it
+-- has been processed. Processed data is ready for use in a BI or pivot tool and stored in the snowplow_pivots
+-- schema. The snowplow_intermediary schema is used to store data while processing.
+
+-- Create the schemas:
+CREATE SCHEMA IF NOT EXISTS snowplow_landing;
+CREATE SCHEMA IF NOT EXISTS snowplow_intermediary;
+CREATE SCHEMA IF NOT EXISTS snowplow_pivots;

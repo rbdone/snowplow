@@ -13,6 +13,8 @@
 -- Copyright: Copyright (c) 2013-2015 Snowplow Analytics Ltd
 -- License: Apache License Version 2.0
 
+-- The page_views_new table contains one line per page view (in this batch).
+
 DROP TABLE IF EXISTS snowplow_intermediary.page_views_new;
 CREATE TABLE snowplow_intermediary.page_views_new 
   DISTKEY (domain_userid) -- Optimized to join on other session_intermediary.page_views_X tables
@@ -34,43 +36,3 @@ CREATE TABLE snowplow_intermediary.page_views_new
     FROM snowplow_intermediary.events_enriched_final
     GROUP BY 1,2,3,4,5,6
   );
-
-DROP TABLE IF EXISTS snowplow_intermediary.page_views_to_load;
-CREATE TABLE snowplow_intermediary.page_views_to_load
-  DISTKEY (domain_userid)
-  SORTKEY (domain_userid, domain_sessionidx)
-  AS (
-    SELECT
-      p.*,
-      t.min_tstamp,
-      t.max_tstamp
-    FROM snowplow_intermediary.page_views_new p 
-    LEFT JOIN (
-      SELECT
-        MIN(last_touch_tstamp) AS min_tstamp,
-        MAX(last_touch_tstamp) AS max_tstamp
-      FROM snowplow_intermediary.page_views_new
-    ) t ON 1
-  );
-
-DROP TABLE IF EXISTS snowplow_pivots.page_views
-CREATE TABLE snowplow_pivots.page_views
-  DISTKEY (domain_userid)
-  SORTKEY (domain_userid, domain_sessionidx)
-  AS (
-SELECT
-      blended_user_id,
-      inferred_user_id,
-      domain_userid,
-      domain_sessionidx,
-      page_urlhost,
-      page_urlpath,
-      first_touch_tstamp,
-      last_touch_tstamp,
-      event_count,
-      page_view_count,
-      page_ping_count,
-      time_engaged_with_minutes,
-      min_tstamp AS processing_run_min_collector_tstamp,
-      max_tstamp AS processing_run_max_collector_tstamp
-    FROM snowplow_intermediary.page_views_to_load

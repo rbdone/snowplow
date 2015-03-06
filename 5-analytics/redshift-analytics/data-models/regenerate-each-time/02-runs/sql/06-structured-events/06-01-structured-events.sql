@@ -13,11 +13,24 @@
 -- Copyright: Copyright (c) 2013-2015 Snowplow Analytics Ltd
 -- License: Apache License Version 2.0
 
--- Create the snowplow_intermediary.cookie_id_to_user_id_map table (used for identity stitching):
-CREATE TABLE IF NOT EXISTS snowplow_intermediary.cookie_id_to_user_id_map (
-  domain_userid varchar(16),
-  inferred_user_id varchar(255) encode runlength -- Most identitiy stitching models will infer the user_id
-)
-DISTSTYLE KEY
-DISTKEY (domain_userid)
-SORTKEY (domain_userid);
+DROP TABLE IF EXISTS snowplow_pivots.structured_events;
+CREATE TABLE snowplow_pivots.structured_events
+  DISTKEY (domain_userid)
+  SORTKEY (domain_userid, domain_sessionidx)
+  AS (
+  SELECT
+    blended_user_id,
+    inferred_user_id,
+    domain_userid,
+    domain_sessionidx,
+    etl_tstamp, -- For debugging
+    dvce_tstamp,
+    collector_tstamp,
+    se_category,
+    se_action,
+    se_label,
+    se_property,
+    se_value
+  FROM snowplow_intermediary.events_enriched_final
+  WHERE event = 'struct' -- Restrict to structured events
+);

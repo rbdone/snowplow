@@ -13,24 +13,22 @@
 -- Copyright: Copyright (c) 2013-2015 Snowplow Analytics Ltd
 -- License: Apache License Version 2.0
 
-DROP TABLE IF EXISTS snowplow_pivots.structured_events
-CREATE TABLE snowplow_pivots.structured_events
+-- Add two colums with MIN and MAX(last_touch_tstamp), which are used to compute which rows can be moved to the pivots table.
+
+DROP TABLE IF EXISTS snowplow_intermediary.page_views_to_load;
+CREATE TABLE snowplow_intermediary.page_views_to_load
   DISTKEY (domain_userid)
   SORTKEY (domain_userid, domain_sessionidx)
   AS (
-  SELECT
-    blended_user_id,
-    inferred_user_id,
-    domain_userid,
-    domain_sessionidx,
-    etl_tstamp, -- For debugging
-    dvce_tstamp,
-    collector_tstamp,
-    se_category,
-    se_action,
-    se_label,
-    se_property,
-    se_value
-  FROM snowplow_intermediary.events_enriched_final
-  WHERE event = 'struct' -- Restrict to structured events
-);
+    SELECT
+      p.*,
+      t.min_tstamp,
+      t.max_tstamp
+    FROM snowplow_intermediary.page_views_new p 
+    LEFT JOIN (
+      SELECT
+        MIN(last_touch_tstamp) AS min_tstamp,
+        MAX(last_touch_tstamp) AS max_tstamp
+      FROM snowplow_intermediary.page_views_new
+    ) t ON 1
+  );
