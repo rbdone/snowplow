@@ -13,26 +13,29 @@
 -- Copyright: Copyright (c) 2013-2015 Snowplow Analytics Ltd
 -- License: Apache License Version 2.0
 
--- The sessions_landing_page table contains one line per session (in this batch) and assigns a landing page to each session.
+-- The sessions_landing_page table has one row per session (in this batch) and assigns a landing page to each session.
 -- The standard model identifies sessions using only first party cookies and session domain indexes.
 
 DROP TABLE IF EXISTS snowplow_intermediary.sessions_landing_page;
-CREATE TABLE snowplow_intermediary.sessions_landing_page 
+CREATE TABLE snowplow_intermediary.sessions_landing_page
   DISTKEY (domain_userid) -- Optimized to join on other session_intermediary.session_X tables
   SORTKEY (domain_userid, domain_sessionidx) -- Optimized to join on other session_intermediary.session_X tables
-  AS (
-    SELECT -- 2. Dedupe records (just in case there are two events with the same dvce_tstamp for a particular session)
-      domain_userid,
-      domain_sessionidx,
-      page_urlhost, 
-      page_urlpath 
-    FROM (
-      SELECT -- 1. Take first value for landing page from each session
-        domain_userid,
-        domain_sessionidx,
-        FIRST_VALUE(page_urlhost) OVER (PARTITION BY domain_userid, domain_sessionidx ORDER BY dvce_tstamp, event_id ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS page_urlhost,
-        FIRST_VALUE(page_urlpath) OVER (PARTITION BY domain_userid, domain_sessionidx ORDER BY dvce_tstamp, event_id ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS page_urlpath
-      FROM snowplow_intermediary.events_enriched_final
-    ) AS a
+AS (
+  SELECT
+    *
+  FROM (
+    SELECT -- Select the first page (using dvce_tstamp)
+      a.domain_userid,
+      a.domain_sessionidx,
+      a.page_urlhost,
+      a.page_urlpath,
+      RANK() OVER (PARTITION BY domain_userid, domain_sessionidx ORDER BY page_urlhost, page_urlpath) AS rank
+    FROM snowplow_intermediary.events_enriched_final AS a
+    INNER JOIN snowplow_intermediary.sessions_basic AS b
+      ON  a.domain_userid = b.domain_userid
+      AND a.domain_sessionidx = b.domain_sessionidx
+      AND a.dvce_tstamp = b.dvce_min_tstamp -- Replaces the FIRST VALUE windowing function in SQL
     GROUP BY 1,2,3,4
-  );
+  )
+  WHERE rank = 1 -- If there are several rows with the same dvce_tstamp, rank and take the first row
+);

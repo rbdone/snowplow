@@ -13,16 +13,17 @@
 -- Copyright: Copyright (c) 2013-2015 Snowplow Analytics Ltd
 -- License: Apache License Version 2.0
 
-DROP TABLE IF EXISTS snowplow_intermediary.events_enriched_final;
-CREATE TABLE snowplow_intermediary.events_enriched_final
-  DISTKEY (domain_userid)
-  SORTKEY (domain_userid, domain_sessionidx, collector_tstamp) -- todo: perhaps sort on dvce_tstamp (faster joining)
-  AS (
-    SELECT
-      COALESCE(u.inferred_user_id, e.domain_userid) AS blended_user_id,
-      u.inferred_user_id,
-      e.*
-    FROM
-      snowplow_intermediary.events_enriched e
-    LEFT JOIN snowplow_intermediary.cookie_id_to_user_id_map u ON u.domain_userid = e.domain_userid
-  );
+-- We removed the in_progress table for sessions, because we can never guarantee all events related to a particular
+-- session have reached the collector (some arrive weeks after the session finished - this is often related to offline
+-- mobile usage). The sessions_new table will therefore have to be merged into the sessions pivot table.
+
+-- First, load all entires from sessions_old that do NOT have corresponding entries in sessions_new.
+
+INSERT INTO snowplow_pivots.sessions (
+  SELECT
+    o.*
+  FROM snowplow_intermediary.sessions_old o
+  LEFT JOIN snowplow_intermediary.sessions_new n
+  ON o.domain_userid = n.domain_userid AND o.domain_sessionidx = n.domain_sessionidx
+  WHERE n.domain_userid IS NULL AND n.domain_sessionidx IS NULL -- Restrict to sessions that have no corresponding entry in the new table 
+);

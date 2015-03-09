@@ -89,8 +89,8 @@
         :file: snowplow/5-analytics/redshift-analytics/data-models/incremental/02-batched-initial-run/sql/05-visitors/05-07-move-to-pivot-part-2.sql
   - :name: 05-visitors
     :queries:
-      - :name: 05-07-move-to-pivot-part-3
-        :file: snowplow/5-analytics/redshift-analytics/data-models/incremental/02-batched-initial-run/sql/05-visitors/05-07-move-to-pivot-part-3.sql
+      - :name: 05-08-move-to-pivot-part-3
+        :file: snowplow/5-analytics/redshift-analytics/data-models/incremental/02-batched-initial-run/sql/05-visitors/05-08-move-to-pivot-part-3.sql
   - :name: 06-page-views
     :queries:
       - :name: 06-01-new

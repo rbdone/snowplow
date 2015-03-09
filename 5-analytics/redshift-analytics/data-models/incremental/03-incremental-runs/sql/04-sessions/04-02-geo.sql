@@ -13,49 +13,55 @@
 -- Copyright: Copyright (c) 2013-2015 Snowplow Analytics Ltd
 -- License: Apache License Version 2.0
 
--- The sessions_geo table has one line per session (in this batch) and assigns a geography to each session.
+-- The sessions_geo table has one row per session (in this batch) and assigns a geography to each session.
 -- The standard model identifies sessions using only first party cookies and session domain indexes.
 
 DROP TABLE IF EXISTS snowplow_intermediary.sessions_geo;
-CREATE TABLE snowplow_intermediary.sessions_geo 
+CREATE TABLE snowplow_intermediary.sessions_geo
   DISTKEY (domain_userid) -- Optimized to join on other session_intermediary.session_X tables
   SORTKEY (domain_userid, domain_sessionidx) -- Optimized to join on other session_intermediary.session_X tables
-  AS (
-    SELECT -- 3. Join with reference_data.country_codes
-      v.domain_userid,
-      v.domain_sessionidx,
-      g.name AS geo_country,
-      v.geo_country AS geo_country_code_2_characters,
-      g.three_letter_iso_code AS geo_country_code_3_characters,
-      v.geo_region,
-      v.geo_city,
-      v.geo_zipcode,
-      v.geo_latitude,
-      v.geo_longitude
+AS (
+  SELECT -- Join with reference_data.country_codes
+    c.domain_userid,
+    c.domain_sessionidx,
+    d.name AS geo_country,
+    c.geo_country AS geo_country_code_2_characters,
+    d.three_letter_iso_code AS geo_country_code_3_characters,
+    c.geo_region,
+    c.geo_city,
+    c.geo_zipcode,
+    c.geo_latitude,
+    c.geo_longitude
+  FROM (
+    SELECT -- This might not be necessary, but is a precaution to ensure sessions are unique
+      domain_userid,
+      domain_sessionidx,
+      geo_country,
+      geo_region,
+      geo_city,
+      geo_zipcode,
+      geo_latitude,
+      geo_longitude,
+      RANK() OVER (PARTITION BY domain_userid, domain_sessionidx 
+        ORDER BY geo_country, geo_region, geo_city, geo_zipcode, geo_latitude, geo_longitude) AS rank
     FROM (
-      SELECT -- 2. Dedupe records (just in case there are two events with the same dvce_tstamp for a particular session)
-        domain_userid,
-        domain_sessionidx,
-        geo_country, 
-        geo_region,
-        geo_city,
-        geo_zipcode,
-        geo_latitude,
-        geo_longitude
-      FROM (
-        SELECT -- 1. Take first value for geography from each session
-          domain_userid,
-          domain_sessionidx,
-          FIRST_VALUE(geo_country) OVER (PARTITION BY domain_userid, domain_sessionidx ORDER BY dvce_tstamp, event_id ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS geo_country,
-          FIRST_VALUE(geo_region) OVER (PARTITION BY domain_userid, domain_sessionidx ORDER BY dvce_tstamp, event_id ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS geo_region,
-          FIRST_VALUE(geo_city) OVER (PARTITION BY domain_userid, domain_sessionidx ORDER BY dvce_tstamp, event_id ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS geo_city,
-          FIRST_VALUE(geo_zipcode) OVER (PARTITION BY domain_userid, domain_sessionidx ORDER BY dvce_tstamp, event_id ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS geo_zipcode,
-          FIRST_VALUE(geo_latitude) OVER (PARTITION BY domain_userid, domain_sessionidx ORDER BY dvce_tstamp, event_id ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS geo_latitude,
-          FIRST_VALUE(geo_longitude) OVER (PARTITION BY domain_userid, domain_sessionidx ORDER BY dvce_tstamp, event_id ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS geo_longitude
-        FROM snowplow_intermediary.events_enriched_final
-      ) AS a
+      SELECT -- Take the geographical information associated with the earliest dvce_tstamp
+        a.domain_userid,
+        a.domain_sessionidx,
+        a.geo_country,
+        a.geo_region,
+        a.geo_city,
+        a.geo_zipcode,
+        a.geo_latitude,
+        a.geo_longitude
+      FROM snowplow_intermediary.events_enriched_final AS a
+      INNER JOIN snowplow_intermediary.sessions_basic AS b
+        ON  a.domain_userid = b.domain_userid
+        AND a.domain_sessionidx = b.domain_sessionidx
+        AND a.dvce_tstamp = b.dvce_min_tstamp -- 
       GROUP BY 1,2,3,4,5,6,7,8
-    ) AS v
-    LEFT JOIN reference_data.country_codes AS g
-    ON v.geo_country = g.two_letter_iso_code
-  );
+    )
+  ) AS c
+  LEFT JOIN reference_data.country_codes AS d ON c.geo_country = d.two_letter_iso_code
+  WHERE c.rank = 1 -- Make sure sessions are unique
+);
