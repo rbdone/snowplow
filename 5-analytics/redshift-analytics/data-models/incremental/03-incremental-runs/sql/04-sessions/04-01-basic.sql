@@ -25,17 +25,16 @@ CREATE TABLE snowplow_intermediary.sessions_basic
   SORTKEY (domain_userid, domain_sessionidx) -- Optimized to join on other session_intermediary.session_X tables
 AS (
   SELECT
-    blended_user_id, -- Placeholder; One row per domain_userid, so no problem with GROUP BY
-    inferred_user_id, -- Placeholder; At most one per domain_userid, so no problem with GROUP BY
+    blended_user_id, -- Placeholder (the domain_userid, so cannot cause issues with GROUP BY)
+    inferred_user_id, -- Placeholder (NULL, so cannot cause issues with GROUP BY)
     domain_userid,
     domain_sessionidx,
-    MAX(etl_tstamp) AS etl_tstamp, -- Included for debugging
     MIN(collector_tstamp) AS session_start_tstamp,
     MAX(collector_tstamp) AS session_end_tstamp,
     MIN(dvce_tstamp) AS dvce_min_tstamp, -- Used to replace SQL windowing functions
     MAX(dvce_tstamp) AS dvce_max_tstamp, -- Used to replace SQL windowing functions
     COUNT(*) AS event_count,
-    COUNT(DISTINCT(FLOOR(EXTRACT (EPOCH FROM collector_tstamp)/30)))/2::FLOAT AS time_engaged_with_minutes
+    COUNT(DISTINCT(FLOOR(EXTRACT(EPOCH FROM collector_tstamp)/30)))/2::FLOAT AS time_engaged_with_minutes
   FROM
     snowplow_intermediary.events_enriched_final
   GROUP BY 1,2,3,4

@@ -46,13 +46,12 @@ AS (
       ON  a.domain_userid = b.domain_userid
       AND a.domain_sessionidx = b.domain_sessionidx
       AND a.dvce_tstamp = b.dvce_min_tstamp -- Replaces the FIRST VALUE windowing function in SQL
-
-    WHERE refr_medium != 'internal' -- Not an internal referer
+    WHERE a.refr_medium != 'internal' -- Not an internal referer
       AND (
-        NOT(refr_medium IS NULL OR refr_medium = '') OR
+        NOT(a.refr_medium IS NULL OR a.refr_medium = '') OR
         NOT (
-          (mkt_campaign IS NULL AND mkt_content IS NULL AND mkt_medium IS NULL AND mkt_source IS NULL AND mkt_term IS NULL) OR
-          (mkt_campaign = '' AND mkt_content = '' AND mkt_medium = '' AND mkt_source = '' AND mkt_term = '')
+          (a.mkt_campaign IS NULL AND a.mkt_content IS NULL AND a.mkt_medium IS NULL AND a.mkt_source IS NULL AND a.mkt_term IS NULL) OR
+          (a.mkt_campaign = '' AND a.mkt_content = '' AND a.mkt_medium = '' AND a.mkt_source = '' AND a.mkt_term = '')
         )
       )
     GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12

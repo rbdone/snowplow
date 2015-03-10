@@ -30,7 +30,7 @@ AS (
     snowplow_landing.events e
   WHERE e.domain_userid IS NOT NULL -- Do not aggregate NULL
     AND e.domain_sessionidx IS NOT NULL -- Do not aggregate NULL
-    AND e.domain_userid <> '' -- Do not aggregate missing domain_userids
+    AND e.domain_userid != '' -- Do not aggregate missing domain_userids
     AND e.etl_tstamp IN (SELECT etl_tstamp FROM snowplow_intermediary.distinct_etl_tstamps) -- Prevent processing data added after this batch started
     AND e.collector_tstamp > '2000-01-01' -- Make sure collector_tstamp has a reasonable value, can otherwise cause SQL errors
 );

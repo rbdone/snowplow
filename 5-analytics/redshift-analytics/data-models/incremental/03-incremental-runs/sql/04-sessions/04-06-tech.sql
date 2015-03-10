@@ -53,7 +53,7 @@ AS (
       a.dvce_ismobile,
       a.dvce_screenwidth,
       a.dvce_screenheight,
-      RANK() OVER (PARTITION BY domain_userid, domain_sessionidx 
+      RANK() OVER (PARTITION BY domain_userid, domain_sessionidx
         ORDER BY dvce_tstamp, br_name, br_family, br_version, br_type, br_renderengine, br_lang, br_features_director, br_features_flash, 
           br_features_gears, br_features_java, br_features_pdf, br_features_quicktime, br_features_realplayer, br_features_silverlight,
           br_features_windowsmedia, br_cookies, os_name, os_family, os_manufacturer, os_timezone, dvce_type, dvce_ismobile, dvce_screenwidth,
@@ -62,7 +62,7 @@ AS (
     INNER JOIN snowplow_intermediary.sessions_basic AS b
       ON  a.domain_userid = b.domain_userid
       AND a.domain_sessionidx = b.domain_sessionidx
-      AND a.dvce_tstamp = b.dvce_max_tstamp -- Replaces the FIRST VALUE windowing function in SQL
+      AND a.dvce_tstamp = b.dvce_min_tstamp -- Replaces the FIRST VALUE windowing function in SQL
     GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26
   )
   WHERE rank = 1 -- If there are several rows with the same dvce_tstamp, rank and take the first row

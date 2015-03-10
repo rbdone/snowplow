@@ -35,35 +35,25 @@ AS (
     c.geo_latitude,
     c.geo_longitude
   FROM (
-    SELECT -- This might not be necessary, but is a precaution to ensure sessions are unique
-      domain_userid,
-      domain_sessionidx,
-      geo_country,
-      geo_region,
-      geo_city,
-      geo_zipcode,
-      geo_latitude,
-      geo_longitude,
-      RANK() OVER (PARTITION BY domain_userid, domain_sessionidx 
+    SELECT -- Select the geographical information associated with the earliest dvce_tstamp
+      a.domain_userid,
+      a.domain_sessionidx,
+      a.geo_country,
+      a.geo_region,
+      a.geo_city,
+      a.geo_zipcode,
+      a.geo_latitude,
+      a.geo_longitude,
+      RANK() OVER (PARTITION BY domain_userid, domain_sessionidx
         ORDER BY geo_country, geo_region, geo_city, geo_zipcode, geo_latitude, geo_longitude) AS rank
-    FROM (
-      SELECT -- Take the geographical information associated with the earliest dvce_tstamp
-        a.domain_userid,
-        a.domain_sessionidx,
-        a.geo_country,
-        a.geo_region,
-        a.geo_city,
-        a.geo_zipcode,
-        a.geo_latitude,
-        a.geo_longitude
-      FROM snowplow_intermediary.events_enriched_final AS a
-      INNER JOIN snowplow_intermediary.sessions_basic AS b
-        ON  a.domain_userid = b.domain_userid
-        AND a.domain_sessionidx = b.domain_sessionidx
-        AND a.dvce_tstamp = b.dvce_min_tstamp -- 
-      GROUP BY 1,2,3,4,5,6,7,8
-    )
+    FROM snowplow_intermediary.events_enriched_final AS a
+    INNER JOIN snowplow_intermediary.sessions_basic AS b
+      ON  a.domain_userid = b.domain_userid
+      AND a.domain_sessionidx = b.domain_sessionidx
+      AND a.dvce_tstamp = b.dvce_min_tstamp -- Replaces the FIRST VALUE windowing function in SQL
+    GROUP BY 1,2,3,4,5,6,7,8
   ) AS c
-  LEFT JOIN reference_data.country_codes AS d ON c.geo_country = d.two_letter_iso_code
-  WHERE c.rank = 1 -- Make sure sessions are unique
+  LEFT JOIN reference_data.country_codes AS d
+    ON c.geo_country = d.two_letter_iso_code
+  WHERE c.rank = 1 -- If there are several rows with the same dvce_tstamp, rank and take the first row
 );
