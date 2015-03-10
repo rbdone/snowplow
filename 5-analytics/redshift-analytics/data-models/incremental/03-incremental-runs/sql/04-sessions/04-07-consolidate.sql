@@ -14,12 +14,14 @@
 -- License: Apache License Version 2.0
 
 -- The sessions_new table contains one line per session (in this batch) and consolidates the previous 6 tables.
--- The standard model identifies sessions using only first party cookies and session domain indexes.
+
+-- The standard model identifies sessions using only first party cookies and session domain indexes,
+-- but contains placeholders for identity stitching.
 
 DROP TABLE IF EXISTS snowplow_intermediary.sessions_new;
 CREATE TABLE snowplow_intermediary.sessions_new
   DISTKEY (domain_userid) -- Optimized to join on other session_intermediary.session_X tables
-  SORTKEY (domain_userid, domain_sessionidx, session_start_tstamp) -- Optimized to join on other session_intermediary.session_X tables
+  SORTKEY (domain_userid, domain_sessionidx) -- Optimized to join on other session_intermediary.session_X tables
 AS (
   SELECT
     b.blended_user_id, -- Placeholder (equals domain_userid)
@@ -30,6 +32,7 @@ AS (
     b.session_end_tstamp,
     b.dvce_min_tstamp, -- Used to join with older sessions
     b.dvce_max_tstamp, -- Used to join with older sessions
+    b.max_etl_tstamp, -- Used for debugging
     b.event_count,
     b.time_engaged_with_minutes,
     g.geo_country,

@@ -13,30 +13,33 @@
 -- Copyright: Copyright (c) 2013-2015 Snowplow Analytics Ltd
 -- License: Apache License Version 2.0
 
--- The sessions_landing_page table has one row per session (in this batch) and assigns a landing page to each session.
-
 -- The standard model identifies sessions using only first party cookies and session domain indexes,
 -- but contains placeholders for identity stitching.
 
-DROP TABLE IF EXISTS snowplow_intermediary.sessions_landing_page;
-CREATE TABLE snowplow_intermediary.sessions_landing_page
+-- Events belonging to the same session can arrive at different times and could end up in different batches.
+-- Rows in the sessions_new table therefore have to be merged with those in the pivot table.
+
+-- Select information associated with the last event in each session.
+
+DROP TABLE IF EXISTS snowplow_intermediary.sessions_to_load_last;
+CREATE TABLE snowplow_intermediary.sessions_to_load_last
   DISTKEY (domain_userid) -- Optimized to join on other session_intermediary.session_X tables
   SORTKEY (domain_userid, domain_sessionidx) -- Optimized to join on other session_intermediary.session_X tables
 AS (
   SELECT
     *
   FROM (
-    SELECT -- Select the first page (using dvce_tstamp)
+    SELECT -- Select the information associated with the earliest event (based on dvce_tstamp)
       a.domain_userid,
       a.domain_sessionidx,
-      a.page_urlhost,
-      a.page_urlpath,
-      RANK() OVER (PARTITION BY a.domain_userid, a.domain_sessionidx ORDER BY a.page_urlhost, a.page_urlpath) AS rank
-    FROM snowplow_intermediary.events_enriched_final AS a
-    INNER JOIN snowplow_intermediary.sessions_basic AS b
+      a.exit_page_host,
+      a.exit_page_path
+      RANK() OVER (PARTITION BY a.domain_userid, a.domain_sessionidx ORDER BY a.exit_page_host, a.exit_page_path) AS rank
+    FROM snowplow_intermediary.sessions_new AS a
+    INNER JOIN snowplow_intermediary.sessions_to_load_basic AS b
       ON  a.domain_userid = b.domain_userid
       AND a.domain_sessionidx = b.domain_sessionidx
-      AND a.dvce_tstamp = b.dvce_min_tstamp -- Replaces the FIRST VALUE window function in SQL
+      AND a.dvce_max_tstamp = b.dvce_max_tstamp -- Replaces the LAST VALUE window function in SQL
     GROUP BY 1,2,3,4 -- Aggregate identital rows (that happen to have the same dvce_tstamp)
   )
   WHERE rank = 1 -- If there are different rows with the same dvce_tstamp, rank and pick the first row

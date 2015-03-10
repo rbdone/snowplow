@@ -31,13 +31,13 @@ AS (
       a.domain_sessionidx,
       a.page_urlhost,
       a.page_urlpath,
-      RANK() OVER (PARTITION BY domain_userid, domain_sessionidx ORDER BY page_urlhost, page_urlpath) AS rank
+      RANK() OVER (PARTITION BY a.domain_userid, a.domain_sessionidx ORDER BY a.page_urlhost, a.page_urlpath) AS rank
     FROM snowplow_intermediary.events_enriched_final AS a
     INNER JOIN snowplow_intermediary.sessions_basic AS b
       ON  a.domain_userid = b.domain_userid
       AND a.domain_sessionidx = b.domain_sessionidx
-      AND a.dvce_tstamp = b.dvce_max_tstamp -- Replaces the LAST VALUE windowing function in SQL
-    GROUP BY 1,2,3,4
+      AND a.dvce_tstamp = b.dvce_max_tstamp -- Replaces the LAST VALUE window function in SQL
+    GROUP BY 1,2,3,4 -- Aggregate identital rows (that happen to have the same dvce_tstamp)
   )
-  WHERE rank = 1 -- If there are several rows with the same dvce_tstamp, rank and take the first row
+  WHERE rank = 1 -- If there are different rows with the same dvce_tstamp, rank and pick the first row
 );

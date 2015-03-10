@@ -44,16 +44,16 @@ AS (
       a.geo_zipcode,
       a.geo_latitude,
       a.geo_longitude,
-      RANK() OVER (PARTITION BY domain_userid, domain_sessionidx
-        ORDER BY geo_country, geo_region, geo_city, geo_zipcode, geo_latitude, geo_longitude) AS rank
+      RANK() OVER (PARTITION BY a.domain_userid, a.domain_sessionidx
+        ORDER BY a.geo_country, a.geo_region, a.geo_city, a.geo_zipcode, a.geo_latitude, a.geo_longitude) AS rank
     FROM snowplow_intermediary.events_enriched_final AS a
     INNER JOIN snowplow_intermediary.sessions_basic AS b
       ON  a.domain_userid = b.domain_userid
       AND a.domain_sessionidx = b.domain_sessionidx
-      AND a.dvce_tstamp = b.dvce_min_tstamp -- Replaces the FIRST VALUE windowing function in SQL
-    GROUP BY 1,2,3,4,5,6,7,8
+      AND a.dvce_tstamp = b.dvce_min_tstamp -- Replaces the FIRST VALUE window function in SQL
+    GROUP BY 1,2,3,4,5,6,7,8 -- Aggregate identital rows (that happen to have the same dvce_tstamp)
   ) AS c
   LEFT JOIN reference_data.country_codes AS d
     ON c.geo_country = d.two_letter_iso_code
-  WHERE c.rank = 1 -- If there are several rows with the same dvce_tstamp, rank and take the first row
+  WHERE c.rank = 1 -- If there are different rows with the same dvce_tstamp, rank and pick the first row
 );

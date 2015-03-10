@@ -13,22 +13,23 @@
 -- Copyright: Copyright (c) 2013-2015 Snowplow Analytics Ltd
 -- License: Apache License Version 2.0
 
--- We removed the in_progress table for sessions, because we can never guarantee all events related to a particular
--- session have reached the collector (some arrive weeks after the session finished - this is often related to offline
--- mobile usage). The sessions_new table will therefore have to be merged into the sessions pivot table.
+-- The standard model identifies sessions using only first party cookies and session domain indexes,
+-- but contains placeholders for identity stitching.
 
--- First, move the current sessions table to sessions_old.
+-- Events belonging to the same session can arrive at different times and could end up in different batches.
+-- Rows in the sessions_new table therefore have to be merged with those in the pivot table.
+
+-- First, move the current sessions pivot table to sessions_old (this also serves as a backup).
 
 BEGIN;
-DROP TABLE IF EXISTS snowplow_intermediary.sessions_old;
-CREATE TABLE snowplow_intermediary.sessions_old
-  DISTKEY (domain_userid) -- Optimized to join on other session_intermediary.session_X tables
-  SORTKEY (domain_userid, domain_sessionidx, session_start_tstamp) -- Optimized to join on other session_intermediary.session_X tables
+  DROP TABLE IF EXISTS snowplow_intermediary.sessions_old;
+  CREATE TABLE snowplow_intermediary.sessions_old
+    DISTKEY (domain_userid) -- Optimized to join on other session_intermediary.session_X tables
+    SORTKEY (domain_userid, domain_sessionidx) -- Optimized to join on other session_intermediary.session_X tables
   AS (
     SELECT
       *
     FROM snowplow_pivots.sessions
   );
-
-DELETE FROM snowplow_pivots.sessions;
+  DELETE FROM snowplow_pivots.sessions;
 COMMIT;
