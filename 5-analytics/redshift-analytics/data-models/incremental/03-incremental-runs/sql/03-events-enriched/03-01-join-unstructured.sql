@@ -14,22 +14,23 @@
 -- License: Apache License Version 2.0
 
 -- Enrich events with unstructured events and inferred_user_id. First, join with unstructured events and
--- save this table with a different distkey to make the new join faster.
+-- save the table with a different distkey to make successive joins faster.
 
--- We do NOT join with unstructured events for the moment, but there WHERE clause removes some invalid data.
+-- This version does NOT join any unstructured events (a placeholder), but the WHERE clause does remove
+-- events that should not be aggregated.
 
 DROP TABLE IF EXISTS snowplow_intermediary.events_enriched;
 CREATE TABLE snowplow_intermediary.events_enriched
   DISTKEY (domain_userid) -- Optimized to join cookie_id_to_user_id_map
-  SORTKEY (domain_userid, domain_sessionidx, collector_tstamp) -- Optimized to join cookie_id_to_user_id_map
-  AS (
-    SELECT
-      e.*
-    FROM
-      snowplow_landing.events e
-    WHERE e.domain_userid IS NOT NULL -- Do not aggregate NULL
-      AND e.domain_userid <> '' -- Do not aggregate missing values
-      AND e.domain_sessionidx IS NOT NULL -- Do not aggregate NULL
-      AND e.etl_tstamp IN (SELECT etl_tstamp FROM snowplow_intermediary.distinct_etl_tstamps) -- Prevent processing data added after this batch started
-      AND e.collector_tstamp > '2000-01-01' -- Make sure collector_tstamp has a reasonable value, can otherwise cause SQL errors
-  );
+  SORTKEY (domain_userid, domain_sessionidx, dvce_tstamp) -- Optimized to join cookie_id_to_user_id_map
+AS (
+  SELECT
+    e.*
+  FROM
+    snowplow_landing.events e
+  WHERE e.domain_userid IS NOT NULL -- Do not aggregate NULL
+    AND e.domain_sessionidx IS NOT NULL -- Do not aggregate NULL
+    AND e.domain_userid <> '' -- Do not aggregate missing domain_userids
+    AND e.etl_tstamp IN (SELECT etl_tstamp FROM snowplow_intermediary.distinct_etl_tstamps) -- Prevent processing data added after this batch started
+    AND e.collector_tstamp > '2000-01-01' -- Make sure collector_tstamp has a reasonable value, can otherwise cause SQL errors
+);

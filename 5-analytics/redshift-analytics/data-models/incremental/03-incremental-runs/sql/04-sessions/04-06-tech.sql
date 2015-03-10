@@ -14,7 +14,9 @@
 -- License: Apache License Version 2.0
 
 -- The sessions_tech table has one row per session (in this batch) and assigns browser details to each session.
--- The standard model identifies sessions using only first party cookies and session domain indexes.
+
+-- The standard model identifies sessions using only first party cookies and session domain indexes,
+-- but contains placeholders for identity stitching.
 
 DROP TABLE IF EXISTS snowplow_intermediary.sessions_technology;
 CREATE TABLE snowplow_intermediary.sessions_technology

@@ -13,16 +13,19 @@
 -- Copyright: Copyright (c) 2013-2015 Snowplow Analytics Ltd
 -- License: Apache License Version 2.0
 
+-- Enrich events with unstructured events and inferred_user_id. Second, join with the cookie_id_user_id_map.
+
 DROP TABLE IF EXISTS snowplow_intermediary.events_enriched_final;
 CREATE TABLE snowplow_intermediary.events_enriched_final
   DISTKEY (domain_userid)
-  SORTKEY (domain_userid, domain_sessionidx, collector_tstamp) -- todo: perhaps sort on dvce_tstamp (faster joining)
-  AS (
-    SELECT
-      COALESCE(u.inferred_user_id, e.domain_userid) AS blended_user_id,
-      u.inferred_user_id,
-      e.*
-    FROM
-      snowplow_intermediary.events_enriched e
-    LEFT JOIN snowplow_intermediary.cookie_id_to_user_id_map u ON u.domain_userid = e.domain_userid
-  );
+  SORTKEY (domain_userid, domain_sessionidx, dvce_tstamp) -- Sort on dvce_tstamp because we need FIRST and LAST value
+AS (
+  SELECT
+    COALESCE(u.inferred_user_id, e.domain_userid) AS blended_user_id, -- Placeholder (domain_userid)
+    u.inferred_user_id, -- Placeholder (NULL)
+    e.*
+  FROM
+    snowplow_intermediary.events_enriched e
+  LEFT JOIN snowplow_intermediary.cookie_id_to_user_id_map u
+    ON u.domain_userid = e.domain_userid
+);

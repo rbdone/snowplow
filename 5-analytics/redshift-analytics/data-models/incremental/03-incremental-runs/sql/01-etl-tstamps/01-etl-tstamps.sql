@@ -13,14 +13,14 @@
 -- Copyright: Copyright (c) 2013-2015 Snowplow Analytics Ltd
 -- License: Apache License Version 2.0
 
--- DISTINCT etl_tstamp is used in several queries to exclude rows in snowplow_landing.events that were added
--- after the current processing run started. A list of etl_tstamps is stored in therefore a separate table.
+-- DISTINCT etl_tstamp is used in events_enriched to exclude rows in snowplow_landing.events that were added
+-- after the current processing run started. A list of etl_tstamps is therefore stored in a separate table.
 
 DROP TABLE IF EXISTS snowplow_intermediary.distinct_etl_tstamps;
 CREATE TABLE snowplow_intermediary.distinct_etl_tstamps
   DISTKEY (etl_tstamp)
   SORTKEY (etl_tstamp)
-  AS (
-    SELECT DISTINCT(etl_tstamp)
-    FROM snowplow_landing.events
-  );
+AS (
+  SELECT DISTINCT(etl_tstamp)
+  FROM snowplow_landing.events
+);
