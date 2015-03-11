@@ -75,7 +75,7 @@ AS (
       a.dvce_type,
       a.dvce_ismobile,
       a.dvce_screenwidth,
-      a.dvce_screenheight
+      a.dvce_screenheight,
       RANK() OVER (PARTITION BY a.domain_userid, a.domain_sessionidx
         ORDER BY a.geo_country, a.geo_country_code_2_characters, a.geo_country_code_3_characters, a.geo_region,
           a.geo_city, a.geo_zipcode, a.geo_latitude, a.geo_longitude, a.landing_page_host, a.landing_page_path,

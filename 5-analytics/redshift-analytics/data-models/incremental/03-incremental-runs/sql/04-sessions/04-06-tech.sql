@@ -54,7 +54,7 @@ AS (
       a.dvce_screenwidth,
       a.dvce_screenheight,
       RANK() OVER (PARTITION BY a.domain_userid, a.domain_sessionidx
-        ORDER BY a.dvce_tstamp, a.br_name, a.br_family, a.br_version, a.br_type, a.br_renderengine, a.br_lang, a.br_features_director, a.br_features_flash, 
+        ORDER BY a.br_name, a.br_family, a.br_version, a.br_type, a.br_renderengine, a.br_lang, a.br_features_director, a.br_features_flash, 
           a.br_features_gears, a.br_features_java, a.br_features_pdf, a.br_features_quicktime, a.br_features_realplayer, a.br_features_silverlight,
           a.br_features_windowsmedia, a.br_cookies, a.os_name, a.os_family, a.os_manufacturer, a.os_timezone, a.dvce_type, a.dvce_ismobile, a.dvce_screenwidth,
           a.dvce_screenheight) AS rank

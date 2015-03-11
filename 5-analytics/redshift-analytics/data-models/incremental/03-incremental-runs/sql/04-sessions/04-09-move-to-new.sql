@@ -24,5 +24,5 @@
 INSERT INTO snowplow_intermediary.sessions_new (
   SELECT
     *
-  FROM snowplow_pivots.sessions_old
+  FROM snowplow_intermediary.sessions_old
 );

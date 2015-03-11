@@ -33,7 +33,7 @@ AS (
       a.domain_userid,
       a.domain_sessionidx,
       a.exit_page_host,
-      a.exit_page_path
+      a.exit_page_path,
       RANK() OVER (PARTITION BY a.domain_userid, a.domain_sessionidx ORDER BY a.exit_page_host, a.exit_page_path) AS rank
     FROM snowplow_intermediary.sessions_new AS a
     INNER JOIN snowplow_intermediary.sessions_to_load_basic AS b

@@ -13,18 +13,19 @@
 -- Copyright: Copyright (c) 2013-2015 Snowplow Analytics Ltd
 -- License: Apache License Version 2.0
 
--- Create the snowplow_intermediary.sessions_in_progress table:
-CREATE TABLE IF NOT EXISTS snowplow_intermediary.sessions_in_progress (
+-- Create the snowplow_pivots.sessions table:
+CREATE TABLE IF NOT EXISTS snowplow_pivots.sessions (
   blended_user_id varchar(255) encode runlength,
   inferred_user_id varchar(255) encode runlength,
   domain_userid varchar(16),
   domain_sessionidx smallint,
-  etl_tstamp timestamp,
   session_start_tstamp timestamp,
   session_end_tstamp timestamp,
+  dvce_min_tstamp timestamp,
+  dvce_max_tstamp timestamp,
+  max_etl_tstamp timestamp,
   event_count bigint,
   time_engaged_with_minutes double precision,
-
   geo_country varchar(255) encode runlength,
   geo_country_code_2_characters char(2) encode runlength,
   geo_country_code_3_characters char(3) encode runlength,
@@ -33,24 +34,20 @@ CREATE TABLE IF NOT EXISTS snowplow_intermediary.sessions_in_progress (
   geo_zipcode varchar(15) encode runlength,
   geo_latitude double precision encode runlength,
   geo_longitude double precision encode runlength,
-
   landing_page_host varchar(255) encode text255,
   landing_page_path varchar(1000) encode text32k,
   exit_page_host varchar(255) encode text255,
   exit_page_path varchar(1000) encode text32k,
-
   mkt_source varchar(255) encode text255,
   mkt_medium varchar(255) encode text255,
   mkt_term varchar(255) encode raw,
   mkt_content varchar(500) encode raw,
   mkt_campaign varchar(255) encode text32k,
-
   refr_source varchar(50) encode text255,
   refr_medium varchar(25) encode text255,
   refr_term varchar(255) encode raw,
   refr_urlhost varchar(255) encode text255,
   refr_urlpath varchar(1000) encode text32k,
-
   br_name varchar(50) encode text255,
   br_family varchar(50) encode text255,
   br_version varchar(50) encode text255,
@@ -67,12 +64,10 @@ CREATE TABLE IF NOT EXISTS snowplow_intermediary.sessions_in_progress (
   br_features_silverlight boolean,
   br_features_windowsmedia boolean,
   br_cookies boolean,
-
   os_name varchar(50) encode text255,
   os_family varchar(50) encode text255,
   os_manufacturer varchar(50) encode text255,
   os_timezone varchar(255) encode text255,
-
   dvce_type varchar(50) encode text255,
   dvce_ismobile boolean,
   dvce_screenwidth integer,
@@ -80,76 +75,4 @@ CREATE TABLE IF NOT EXISTS snowplow_intermediary.sessions_in_progress (
 )
 DISTSTYLE KEY
 DISTKEY (domain_userid)
-SORTKEY (domain_userid, domain_sessionidx, session_start_tstamp);
-
--- Create the snowplow_pivots.sessions table (has 2 extra fields):
-CREATE TABLE IF NOT EXISTS snowplow_pivots.sessions (
-  blended_user_id varchar(255) encode runlength,
-  inferred_user_id varchar(255) encode runlength,
-  domain_userid varchar(16),
-  domain_sessionidx smallint,
-  etl_tstamp timestamp,
-	session_start_tstamp timestamp,
-  session_end_tstamp timestamp,
-  event_count bigint,
-  time_engaged_with_minutes double precision,
-
-  geo_country varchar(255) encode runlength,
-  geo_country_code_2_characters char(2) encode runlength,
-  geo_country_code_3_characters char(3) encode runlength,
-  geo_region char(2) encode runlength,
-  geo_city varchar(75) encode runlength,
-  geo_zipcode varchar(15) encode runlength,
-  geo_latitude double precision encode runlength,
-  geo_longitude double precision encode runlength,
-
-  landing_page_host varchar(255) encode text255,
-  landing_page_path varchar(1000) encode text32k,
-  exit_page_host varchar(255) encode text255,
-  exit_page_path varchar(1000) encode text32k,
-
-  mkt_source varchar(255) encode text255,
-  mkt_medium varchar(255) encode text255,
-  mkt_term varchar(255) encode raw,
-  mkt_content varchar(500) encode raw,
-  mkt_campaign varchar(255) encode text32k,
-
-  refr_source varchar(50) encode text255,
-  refr_medium varchar(25) encode text255,
-  refr_term varchar(255) encode raw,
-  refr_urlhost varchar(255) encode text255,
-  refr_urlpath varchar(1000) encode text32k,
-
-  br_name varchar(50) encode text255,
-  br_family varchar(50) encode text255,
-  br_version varchar(50) encode text255,
-  br_type varchar(50) encode text255,
-  br_renderengine varchar(50) encode text255,
-  br_lang varchar(255) encode text255,
-  br_features_director boolean,
-  br_features_flash boolean,
-  br_features_gears boolean,
-  br_features_java boolean,
-  br_features_pdf boolean,
-  br_features_quicktime boolean,
-  br_features_realplayer boolean, 
-  br_features_silverlight boolean,
-  br_features_windowsmedia boolean,
-  br_cookies boolean,
-
-  os_name varchar(50) encode text255,
-  os_family varchar(50) encode text255,
-  os_manufacturer varchar(50) encode text255,
-  os_timezone varchar(255) encode text255,
-
-  dvce_type varchar(50) encode text255,
-  dvce_ismobile boolean,
-  dvce_screenwidth integer,
-  dvce_screenheight integer,
-
-  processing_run_min_collector_tstamp timestamp,
-	processing_run_max_collector_tstamp timestamp
-)
-DISTSTYLE KEY
-DISTKEY (domain_userid)
-SORTKEY (domain_userid, domain_sessionidx, session_start_tstamp);
+SORTKEY (domain_userid, domain_sessionidx);
