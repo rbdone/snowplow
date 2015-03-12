@@ -14,23 +14,24 @@
 -- License: Apache License Version 2.0
 
 -- Enrich events with unstructured events and inferred_user_id. First, join with unstructured events and
--- save this table with a different distkey to make the new join faster.
+-- save the table with a different distkey to speed up successive joins.
 
--- We do NOT join with unstructured events for the moment, but there WHERE clause removes some invalid data.
+-- This version does NOT join any unstructured events (a placeholder), but the WHERE clause does remove
+-- events that should not be aggregated.
 
 DROP TABLE IF EXISTS snowplow_intermediary.events_enriched;
 CREATE TABLE snowplow_intermediary.events_enriched
   DISTKEY (domain_userid) -- Optimized to join cookie_id_to_user_id_map
-  SORTKEY (domain_userid, domain_sessionidx, collector_tstamp) -- Optimized to join cookie_id_to_user_id_map
-  AS (
-    SELECT
-      e.*
-    FROM
-      atomic.events e
-    WHERE e.domain_userid IS NOT NULL -- Do not aggregate NULL
-      AND e.domain_userid <> '' -- Do not aggregate missing values
-      AND e.domain_sessionidx IS NOT NULL -- Do not aggregate NULL
-      AND e.collector_tstamp > '2000-01-01' -- Make sure collector_tstamp has a reasonable value, can otherwise cause SQL errors
-      AND e.collector_tstamp >= {{begin_tstamp}} -- For SQL Runner
-      AND e.collector_tstamp < {{end_tstamp}} -- For SQL Runner
-  );
+  SORTKEY (domain_userid, domain_sessionidx, dvce_tstamp) -- Optimized to join cookie_id_to_user_id_map
+AS (
+  SELECT
+    e.*
+  FROM
+    atomic.events e
+  WHERE e.domain_userid IS NOT NULL -- Do not aggregate NULL
+    AND e.domain_sessionidx IS NOT NULL -- Do not aggregate NULL
+    AND e.domain_userid != '' -- Do not aggregate missing domain_userids
+    AND e.dvce_tstamp IS NOT NULL -- Required, used to sort events
+    AND e.collector_tstamp >= '{{.begin_tstamp}}' -- For SQL Runner (batched initial run)
+    AND e.collector_tstamp < '{{.end_tstamp}}' -- For SQL Runner (batched initial run)
+);

@@ -13,25 +13,27 @@
 -- Copyright: Copyright (c) 2013-2015 Snowplow Analytics Ltd
 -- License: Apache License Version 2.0
 
--- The visitors_basic table has one row per visitor (in this batch) and contains basic information that
--- can be derived from a single table scan. The standard model identifies visitors using only a first party cookie.
+-- Events belonging to the same visitor can arrive at different times and could end up in different batches.
+-- Rows in the visitors_new table therefore have to be merged with those in the pivot table.
 
-DROP TABLE IF EXISTS snowplow_intermediary.visitors_basic;
-CREATE TABLE snowplow_intermediary.visitors_basic
+-- First, aggregate timestamps and counts per visitor.
+
+DROP TABLE IF EXISTS snowplow_intermediary.visitors_to_load_basic;
+CREATE TABLE snowplow_intermediary.visitors_to_load_basic
   DISTKEY (blended_user_id) -- Optimized to join on other snowplow_intermediary.visitors_X tables
   SORTKEY (blended_user_id) -- Optimized to join on other snowplow_intermediary.visitors_X tables
 AS (
   SELECT
-    blended_user_id, -- Placeholder (the domain_userid)
-    MIN(collector_tstamp) AS first_touch_tstamp,
-    MAX(collector_tstamp) AS last_touch_tstamp,
-    MIN(dvce_tstamp) AS dvce_min_tstamp, -- Used to replace SQL window functions
-    MAX(dvce_tstamp) AS dvce_max_tstamp, -- Used to replace SQL window functions
-    MAX(etl_tstamp) AS max_etl_tstamp, -- Used for debugging
-    COUNT(*) AS event_count,
-    MAX(domain_sessionidx) AS session_count,
-    SUM(CASE WHEN event = 'page_view' THEN 1 ELSE 0 END) AS page_view_count,
-    COUNT(DISTINCT(FLOOR(EXTRACT (EPOCH FROM collector_tstamp)/30)))/2::FLOAT AS time_engaged_with_minutes
-  FROM snowplow_intermediary.events_enriched_final
-  GROUP BY 1
+    blended_user_id,
+    MIN(first_touch_tstamp) AS first_touch_tstamp,
+    MAX(last_touch_tstamp) AS last_touch_tstamp,
+    MIN(dvce_min_tstamp) AS dvce_min_tstamp,
+    MAX(dvce_max_tstamp) AS dvce_max_tstamp,
+    MAX(max_etl_tstamp) AS max_etl_tstamp,
+    SUM(event_count) AS event_count,
+    MAX(session_count) AS session_count, -- MAX not SUM
+    SUM(page_view_count) AS page_view_count,
+    SUM(time_engaged_with_minutes) AS time_engaged_with_minutes
+  FROM snowplow_intermediary.visitors_new
+  GROUP BY 1,2,3,4
 );

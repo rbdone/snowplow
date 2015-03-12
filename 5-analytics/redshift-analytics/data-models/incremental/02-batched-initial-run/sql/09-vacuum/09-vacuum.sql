@@ -13,41 +13,25 @@
 -- Copyright: Copyright (c) 2013-2015 Snowplow Analytics Ltd
 -- License: Apache License Version 2.0
 
--- VACUUM relevant tables (those that don't get deleted with each batch)
--- Do this at the end is because an error gets thrown when another user does VACUUM FULL
-
--- Part 2
-
-VACUUM snowplow_pivots.sessions;
-VACUUM snowplow_intermediary.sessions_in_progress;
-
-ANALYZE snowplow_pivots.sessions;
-ANALYZE snowplow_intermediary.sessions_in_progress;
-
--- Part 3
-
-VACUUM snowplow_pivots.visitors;
-
-ANALYZE snowplow_pivots.visitors;
+-- VACUUM tables that don't get deleted with each batch, and do this at the end so errors in this step
+-- don't break the update.
 
 -- Part 4
 
-VACUUM snowplow_pivots.page_views;
-VACUUM snowplow_intermediary.page_views_in_progress;
-
-ANALYZE snowplow_pivots.page_views;
-ANALYZE snowplow_intermediary.page_views_in_progress;
+VACUUM snowplow_pivots.sessions;
+ANALYZE snowplow_pivots.sessions;
 
 -- Part 5
 
-VACUUM snowplow_pivots.structured_events;
-
-ANALYZE snowplow_pivots.structured_events;
+VACUUM snowplow_pivots.visitors;
+ANALYZE snowplow_pivots.visitors;
 
 -- Part 6
 
-VACUUM atomic.events;
-VACUUM snowplow_landing.events;
+VACUUM snowplow_pivots.page_views;
+ANALYZE snowplow_pivots.page_views;
 
-ANALYZE atomic.events;
-ANALYZE snowplow_landing.events;
+-- Part 7
+
+VACUUM snowplow_pivots.structured_events;
+ANALYZE snowplow_pivots.structured_events;

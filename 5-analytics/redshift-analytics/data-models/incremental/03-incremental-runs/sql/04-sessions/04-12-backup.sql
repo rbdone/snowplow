@@ -13,24 +13,20 @@
 -- Copyright: Copyright (c) 2013-2015 Snowplow Analytics Ltd
 -- License: Apache License Version 2.0
 
--- A simple table that contains one row per structured event. To be merged with the other tables in
--- snowplow_pivots on domain_userid and domain_sessionidx.
+-- The standard model identifies sessions using only first party cookies and session domain indexes,
+-- but contains placeholders for identity stitching.
 
-INSERT INTO snowplow_pivots.structured_events
-(
+-- Events belonging to the same session can arrive at different times and could end up in different batches.
+-- Rows in the sessions_new table therefore have to be merged with those in the pivot table.
+
+-- Backup the current sessions pivot table.
+
+DROP TABLE IF EXISTS snowplow_intermediary.sessions_backup;
+CREATE TABLE snowplow_intermediary.sessions_backup
+  DISTKEY (domain_userid) -- Optimized to join on other snowplow_intermediary.session_X tables
+  SORTKEY (domain_userid, domain_sessionidx) -- Optimized to join on other snowplow_intermediary.session_X tables
+AS (
   SELECT
-    blended_user_id,
-    inferred_user_id,
-    domain_userid,
-    domain_sessionidx,
-    etl_tstamp, -- For debugging
-    dvce_tstamp,
-    collector_tstamp,
-    se_category,
-    se_action,
-    se_label,
-    se_property,
-    se_value
-  FROM snowplow_intermediary.events_enriched_final
-  WHERE event = 'struct' -- Restrict to structured events
+    *
+  FROM snowplow_pivots.sessions
 );
