@@ -19,7 +19,7 @@
 DROP TABLE IF EXISTS snowplow_intermediary.page_views_new;
 CREATE TABLE snowplow_intermediary.page_views_new
   DISTKEY (domain_userid) -- Optimized to join on other snowplow_intermediary.page_views_X tables
-  SORTKEY (domain_userid, domain_sessionidx) -- Optimized to join on other snowplow_intermediary.page_views_X tables
+  SORTKEY (domain_userid, domain_sessionidx, first_touch_tstamp) -- Optimized to join on other snowplow_intermediary.page_views_X tables
 AS (
   SELECT
     blended_user_id, -- Placeholder (the domain_userid, so cannot cause issues with GROUP BY)

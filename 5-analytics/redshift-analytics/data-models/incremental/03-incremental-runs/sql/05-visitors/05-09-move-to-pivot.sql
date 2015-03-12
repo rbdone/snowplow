@@ -16,32 +16,36 @@
 -- Events belonging to the same visitor can arrive at different times and could end up in different batches.
 -- Rows in the visitors_new table therefore have to be merged with those in the pivot table.
 
--- Move the consolidated visitors to the pivot table.
+-- Move the consolidated visitors to the pivot table (but first delete its contents).
 
-INSERT INTO snowplow_pivots.visitors (
-  SELECT
-    b.blended_user_id,
-    b.first_touch_tstamp,
-    b.last_touch_tstamp,
-    b.dvce_min_tstamp,
-    b.dvce_max_tstamp,
-    b.max_etl_tstamp,
-    b.event_count,
-    b.session_count,
-    b.page_view_count,
-    b.time_engaged_with_minutes,
-    f.landing_page_host,
-    f.landing_page_path,
-    f.mkt_source,
-    f.mkt_medium,
-    f.mkt_term,
-    f.mkt_content,
-    f.mkt_campaign,
-    f.refr_source,
-    f.refr_medium,
-    f.refr_term,
-    f.refr_urlhost,
-    f.refr_urlpath
-  FROM      snowplow_intermediary.visitors_to_load_basic AS b
-  LEFT JOIN snowplow_intermediary.visitors_to_load_first AS f ON blended_user_id = f.blended_user_id
-);
+BEGIN;
+  DELETE FROM snowplow_pivots.visitors;
+
+  INSERT INTO snowplow_pivots.visitors (
+    SELECT
+      b.blended_user_id,
+      b.first_touch_tstamp,
+      b.last_touch_tstamp,
+      b.dvce_min_tstamp,
+      b.dvce_max_tstamp,
+      b.max_etl_tstamp,
+      b.event_count,
+      b.session_count,
+      b.page_view_count,
+      b.time_engaged_with_minutes,
+      f.landing_page_host,
+      f.landing_page_path,
+      f.mkt_source,
+      f.mkt_medium,
+      f.mkt_term,
+      f.mkt_content,
+      f.mkt_campaign,
+      f.refr_source,
+      f.refr_medium,
+      f.refr_term,
+      f.refr_urlhost,
+      f.refr_urlpath
+    FROM      snowplow_intermediary.visitors_to_load_basic AS b
+    LEFT JOIN snowplow_intermediary.visitors_to_load_first AS f ON blended_user_id = f.blended_user_id
+  );
+COMMIT;

@@ -18,6 +18,9 @@ CREATE TABLE IF NOT EXISTS snowplow_pivots.visitors (
   blended_user_id varchar(255) encode runlength,
 	first_touch_tstamp timestamp,
   last_touch_tstamp timestamp,
+  dvce_min_tstamp timestamp,
+  dvce_max_tstamp timestamp,
+  max_etl_tstamp timestamp,
   event_count bigint,
   session_count bigint,
   page_view_count bigint,
@@ -40,4 +43,4 @@ CREATE TABLE IF NOT EXISTS snowplow_pivots.visitors (
 )
 DISTSTYLE KEY
 DISTKEY (blended_user_id)
-SORTKEY (blended_user_id, first_touch_tstamp);
+SORTKEY (blended_user_id);

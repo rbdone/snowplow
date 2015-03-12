@@ -13,25 +13,6 @@
 -- Copyright: Copyright (c) 2013-2015 Snowplow Analytics Ltd
 -- License: Apache License Version 2.0
 
--- Create the snowplow_intermediary.page_views_in_progress table:
-CREATE TABLE IF NOT EXISTS snowplow_intermediary.page_views_in_progress (
-  blended_user_id varchar(255) encode runlength,
-  inferred_user_id varchar(255) encode runlength,
-  domain_userid varchar(16),
-  domain_sessionidx smallint,
-  page_urlhost varchar(255) encode text255,
-  page_urlpath varchar(1000) encode text32k,
-  first_touch_tstamp timestamp,
-  last_touch_tstamp timestamp,
-  event_count bigint,
-  page_view_count bigint,
-  page_ping_count bigint,
-  time_engaged_with_minutes double precision
-)
-DISTSTYLE KEY
-DISTKEY (domain_userid)
-SORTKEY (domain_userid, domain_sessionidx, first_touch_tstamp);
-
 -- Create the snowplow_pivots.page_views table:
 CREATE TABLE IF NOT EXISTS snowplow_pivots.page_views (
   blended_user_id varchar(255) encode runlength,
@@ -42,12 +23,13 @@ CREATE TABLE IF NOT EXISTS snowplow_pivots.page_views (
   page_urlpath varchar(1000) encode text32k,
 	first_touch_tstamp timestamp,
   last_touch_tstamp timestamp,
+  dvce_min_tstamp timestamp,
+  dvce_max_tstamp timestamp,
+  max_etl_tstamp timestamp,
   event_count bigint,
   page_view_count bigint,
   page_ping_count bigint,
-  time_engaged_with_minutes double precision,
-  processing_run_min_collector_tstamp timestamp,
-  processing_run_max_collector_tstamp timestamp
+  time_engaged_with_minutes double precision
 )
 DISTSTYLE KEY
 DISTKEY (domain_userid)
