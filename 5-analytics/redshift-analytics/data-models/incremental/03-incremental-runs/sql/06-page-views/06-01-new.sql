@@ -39,4 +39,4 @@ AS (
     COUNT(DISTINCT(FLOOR(EXTRACT (EPOCH FROM collector_tstamp)/30)))/2::FLOAT AS time_engaged_with_minutes
   FROM snowplow_intermediary.events_enriched_final
   GROUP BY 1,2,3,4,5,6
-  );
+);
