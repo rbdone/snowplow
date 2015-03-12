@@ -13,7 +13,7 @@
 -- Copyright: Copyright (c) 2013-2015 Snowplow Analytics Ltd
 -- License: Apache License Version 2.0
 
--- The visitors_source table has one row per visitor (in this batch) and assigns initial campaign and referer
+-- The visitors_source table has one row per visitor and assigns initial campaign and referer
 -- data to each visitor. The standard model identifies visitors using only a first party cookie.
 
 DROP TABLE IF EXISTS snowplow_intermediary.visitors_source;
