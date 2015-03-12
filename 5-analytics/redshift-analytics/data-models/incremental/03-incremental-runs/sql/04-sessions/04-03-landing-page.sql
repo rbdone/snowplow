@@ -20,8 +20,8 @@
 
 DROP TABLE IF EXISTS snowplow_intermediary.sessions_landing_page;
 CREATE TABLE snowplow_intermediary.sessions_landing_page
-  DISTKEY (domain_userid) -- Optimized to join on other session_intermediary.session_X tables
-  SORTKEY (domain_userid, domain_sessionidx) -- Optimized to join on other session_intermediary.session_X tables
+  DISTKEY (domain_userid) -- Optimized to join on other snowplow_intermediary.session_X tables
+  SORTKEY (domain_userid, domain_sessionidx) -- Optimized to join on other snowplow_intermediary.session_X tables
 AS (
   SELECT
     *

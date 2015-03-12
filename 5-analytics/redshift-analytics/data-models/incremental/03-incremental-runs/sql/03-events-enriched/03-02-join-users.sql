@@ -18,7 +18,7 @@
 DROP TABLE IF EXISTS snowplow_intermediary.events_enriched_final;
 CREATE TABLE snowplow_intermediary.events_enriched_final
   DISTKEY (domain_userid)
-  SORTKEY (domain_userid, domain_sessionidx, dvce_tstamp) -- Sort on dvce_tstamp because we need FIRST and LAST value
+  SORTKEY (domain_userid, domain_sessionidx, dvce_tstamp) -- Sort on dvce_tstamp to speed up future queries
 AS (
   SELECT
     COALESCE(u.inferred_user_id, e.domain_userid) AS blended_user_id, -- Placeholder (domain_userid)

@@ -20,8 +20,8 @@
 
 DROP TABLE IF EXISTS snowplow_intermediary.sessions_geo;
 CREATE TABLE snowplow_intermediary.sessions_geo
-  DISTKEY (domain_userid) -- Optimized to join on other session_intermediary.session_X tables
-  SORTKEY (domain_userid, domain_sessionidx) -- Optimized to join on other session_intermediary.session_X tables
+  DISTKEY (domain_userid) -- Optimized to join on other snowplow_intermediary.session_X tables
+  SORTKEY (domain_userid, domain_sessionidx) -- Optimized to join on other snowplow_intermediary.session_X tables
 AS (
   SELECT -- Join with reference_data.country_codes
     c.domain_userid,
