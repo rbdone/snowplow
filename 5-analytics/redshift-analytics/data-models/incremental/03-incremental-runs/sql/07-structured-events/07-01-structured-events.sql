@@ -13,8 +13,8 @@
 -- Copyright: Copyright (c) 2013-2015 Snowplow Analytics Ltd
 -- License: Apache License Version 2.0
 
--- A simple table that contains one row per structured event.
--- To be merged with the other tables in snowplow_pivots on domain_userid and domain_sessionidx.
+-- A simple table that contains one row per structured event. To be merged with the other tables in
+-- snowplow_pivots on domain_userid and domain_sessionidx.
 
 INSERT INTO snowplow_pivots.structured_events
 (
