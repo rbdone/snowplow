@@ -1,0 +1,63 @@
+:steps:
+  - :name: 02-events-enriched
+    :queries:
+      - :name: 02-01-join-unstructured
+        :file: snowplow/5-analytics/redshift-analytics/data-models/regenerate-each-time/02-runs/sql/02-events-enriched/02-01-join-unstructured.sql
+  - :name: 02-events-enriched
+    :queries:
+      - :name: 02-02-join-users
+        :file: snowplow/5-analytics/redshift-analytics/data-models/regenerate-each-time/02-runs/sql/02-events-enriched/02-02-join-users.sql
+  - :name: 03-sessions
+    :queries:
+      - :name: 03-01-basic
+        :file: snowplow/5-analytics/redshift-analytics/data-models/regenerate-each-time/02-runs/sql/03-sessions/03-01-basic.sql
+      - :name: 03-02-geo
+        :file: snowplow/5-analytics/redshift-analytics/data-models/regenerate-each-time/02-runs/sql/03-sessions/03-02-geo.sql
+      - :name: 03-03-landing-page
+        :file: snowplow/5-analytics/redshift-analytics/data-models/regenerate-each-time/02-runs/sql/03-sessions/03-03-landing-page.sql
+      - :name: 03-04-exit-page
+        :file: snowplow/5-analytics/redshift-analytics/data-models/regenerate-each-time/02-runs/sql/03-sessions/03-04-exit-page.sql
+      - :name: 03-05-source
+        :file: snowplow/5-analytics/redshift-analytics/data-models/regenerate-each-time/02-runs/sql/03-sessions/03-05-source.sql
+      - :name: 03-06-tech
+        :file: snowplow/5-analytics/redshift-analytics/data-models/regenerate-each-time/02-runs/sql/03-sessions/03-06-tech.sql
+  - :name: 03-sessions
+    :queries:
+      - :name: 03-07-consolidate
+        :file: snowplow/5-analytics/redshift-analytics/data-models/regenerate-each-time/02-runs/sql/03-sessions/03-07-consolidate.sql
+  - :name: 03-sessions
+    :queries:
+      - :name: 03-08-to-load
+        :file: snowplow/5-analytics/redshift-analytics/data-models/regenerate-each-time/02-runs/sql/03-sessions/03-08-to-load.sql
+  - :name: 03-sessions
+    :queries:
+      - :name: 03-09-move-to-pivot
+        :file: snowplow/5-analytics/redshift-analytics/data-models/regenerate-each-time/02-runs/sql/03-sessions/03-09-move-to-pivot.sql
+  - :name: 04-visitors
+    :queries:
+      - :name: 04-01-basic
+        :file: snowplow/5-analytics/redshift-analytics/data-models/regenerate-each-time/02-runs/sql/04-visitors/04-01-basic.sql
+      - :name: 04-02-landing-page
+        :file: snowplow/5-analytics/redshift-analytics/data-models/regenerate-each-time/02-runs/sql/04-visitors/04-02-landing-page.sql
+      - :name: 04-03-source
+        :file: snowplow/5-analytics/redshift-analytics/data-models/regenerate-each-time/02-runs/sql/04-visitors/04-03-source.sql
+  - :name: 04-visitors
+    :queries:
+      - :name: 04-04-consolidate
+        :file: snowplow/5-analytics/redshift-analytics/data-models/regenerate-each-time/02-runs/sql/04-visitors/04-04-consolidate.sql
+  - :name: 05-page-views
+    :queries:
+      - :name: 05-01-new
+        :file: snowplow/5-analytics/redshift-analytics/data-models/regenerate-each-time/02-runs/sql/05-page-views/05-01-new.sql
+  - :name: 05-page-views
+    :queries:
+      - :name: 05-02-to-load
+        :file: snowplow/5-analytics/redshift-analytics/data-models/regenerate-each-time/02-runs/sql/05-page-views/05-02-to-load.sql
+  - :name: 05-page-views
+    :queries:
+      - :name: 05-03-move-to-pivot
+        :file: snowplow/5-analytics/redshift-analytics/data-models/regenerate-each-time/02-runs/sql/05-page-views/05-03-move-to-pivot.sql
+  - :name: 06-structured-events
+    :queries:
+      - :name: 06-01-structured-events
+        :file: snowplow/5-analytics/redshift-analytics/data-models/regenerate-each-time/02-runs/sql/06-structured-events/06-01-structured-events.sql
