@@ -35,5 +35,5 @@ AS (
     SUM(page_view_count) AS page_view_count,
     SUM(time_engaged_with_minutes) AS time_engaged_with_minutes
   FROM snowplow_intermediary.visitors_new
-  GROUP BY 1,2,3,4
+  GROUP BY 1
 );

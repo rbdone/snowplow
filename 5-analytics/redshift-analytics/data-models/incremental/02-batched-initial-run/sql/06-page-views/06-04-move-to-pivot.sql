@@ -31,8 +31,8 @@ BEGIN;
       page_urlpath,
       MIN(first_touch_tstamp) AS first_touch_tstamp,
       MAX(last_touch_tstamp) AS last_touch_tstamp,
-      MIN(dvce_tstamp) AS dvce_min_tstamp, -- Used to replace SQL window functions
-      MAX(dvce_tstamp) AS dvce_max_tstamp, -- Used to replace SQL window functions
+      MIN(dvce_min_tstamp) AS dvce_min_tstamp, -- Used to replace SQL window functions
+      MAX(dvce_max_tstamp) AS dvce_max_tstamp, -- Used to replace SQL window functions
       MAX(max_etl_tstamp) AS max_etl_tstamp, -- Used for debugging
       SUM(event_count) AS event_count,
       SUM(page_view_count) AS page_view_count,
