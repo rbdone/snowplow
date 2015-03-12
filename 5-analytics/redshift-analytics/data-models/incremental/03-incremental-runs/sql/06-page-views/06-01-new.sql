@@ -13,11 +13,8 @@
 -- Copyright: Copyright (c) 2013-2015 Snowplow Analytics Ltd
 -- License: Apache License Version 2.0
 
--- The page_views_new table has one row per session (in this batch) and contains basic information that
+-- The page_views_new table has one row per page view (in this batch) and contains basic information that
 -- can be derived from a single table scan.
-
--- The standard model identifies sessions using only first party cookies and session domain indexes,
--- but contains placeholders for identity stitching.
 
 DROP TABLE IF EXISTS snowplow_intermediary.page_views_new;
 CREATE TABLE snowplow_intermediary.page_views_new
@@ -33,6 +30,8 @@ AS (
     page_urlpath,
     MIN(collector_tstamp) AS first_touch_tstamp,
     MAX(collector_tstamp) AS last_touch_tstamp,
+    MIN(dvce_tstamp) AS dvce_min_tstamp, -- Used to replace SQL window functions
+    MAX(dvce_tstamp) AS dvce_max_tstamp, -- Used to replace SQL window functions
     MAX(etl_tstamp) AS max_etl_tstamp, -- Used for debugging
     COUNT(*) AS event_count,
     SUM(CASE WHEN event = 'page_view' THEN 1 ELSE 0 END) AS page_view_count,

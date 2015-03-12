@@ -14,7 +14,7 @@
 -- License: Apache License Version 2.0
 
 -- Enrich events with unstructured events and inferred_user_id. First, join with unstructured events and
--- save the table with a different distkey to make successive joins faster.
+-- save the table with a different distkey to speed up successive joins.
 
 -- This version does NOT join any unstructured events (a placeholder), but the WHERE clause does remove
 -- events that should not be aggregated.
@@ -33,4 +33,6 @@ AS (
     AND e.domain_userid != '' -- Do not aggregate missing domain_userids
     AND e.etl_tstamp IN (SELECT etl_tstamp FROM snowplow_intermediary.distinct_etl_tstamps) -- Prevent processing data added after this batch started
     AND e.collector_tstamp > '2000-01-01' -- Make sure collector_tstamp has a reasonable value, can otherwise cause SQL errors
+    AND e.collector_tstamp IS NOT NULL
+    AND e.dvce_tstamp IS NOT NULL -- Required, used to sort events
 );

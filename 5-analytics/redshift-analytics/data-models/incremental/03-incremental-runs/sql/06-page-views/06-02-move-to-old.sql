@@ -13,9 +13,6 @@
 -- Copyright: Copyright (c) 2013-2015 Snowplow Analytics Ltd
 -- License: Apache License Version 2.0
 
--- The standard model identifies sessions using only first party cookies and session domain indexes,
--- but contains placeholders for identity stitching.
-
 -- Events belonging to the same page view can arrive at different times and could end up in different batches.
 -- Rows in the page_views_new table therefore have to be merged with those in the pivot table.
 

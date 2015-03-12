@@ -31,10 +31,9 @@ AS (
     MAX(dvce_max_tstamp) AS dvce_max_tstamp,
     MAX(max_etl_tstamp) AS max_etl_tstamp,
     SUM(event_count) AS event_count,
-    SUM(session_count) AS session_count,
+    MAX(session_count) AS session_count, -- MAX not SUM
     SUM(page_view_count) AS page_view_count,
     SUM(time_engaged_with_minutes) AS time_engaged_with_minutes
-  FROM snowplow_intermediary.sessions_new
+  FROM snowplow_intermediary.visitors_new
   GROUP BY 1,2,3,4
 );
-

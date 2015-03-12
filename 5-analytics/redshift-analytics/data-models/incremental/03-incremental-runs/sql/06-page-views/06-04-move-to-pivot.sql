@@ -13,9 +13,6 @@
 -- Copyright: Copyright (c) 2013-2015 Snowplow Analytics Ltd
 -- License: Apache License Version 2.0
 
--- The standard model identifies sessions using only first party cookies and session domain indexes,
--- but contains placeholders for identity stitching.
-
 -- Events belonging to the same page view can arrive at different times and could end up in different batches.
 -- Rows in the page_views_new table therefore have to be merged with those in the pivot table.
 
@@ -31,6 +28,8 @@ INSERT INTO snowplow_pivots.page_views (
     page_urlpath,
     MIN(first_touch_tstamp) AS first_touch_tstamp,
     MAX(last_touch_tstamp) AS last_touch_tstamp,
+    MIN(dvce_tstamp) AS dvce_min_tstamp, -- Used to replace SQL window functions
+    MAX(dvce_tstamp) AS dvce_max_tstamp, -- Used to replace SQL window functions
     MAX(max_etl_tstamp) AS max_etl_tstamp, -- Used for debugging
     SUM(event_count) AS event_count,
     SUM(page_view_count) AS page_view_count,

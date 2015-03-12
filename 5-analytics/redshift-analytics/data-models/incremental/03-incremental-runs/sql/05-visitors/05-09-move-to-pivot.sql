@@ -42,6 +42,6 @@ INSERT INTO snowplow_pivots.visitors (
     f.refr_term,
     f.refr_urlhost,
     f.refr_urlpath
-  FROM      snowplow_intermediary.sessions_to_load_basic AS b
-  LEFT JOIN snowplow_intermediary.sessions_to_load_first AS f ON blended_user_id = f.blended_user_id
+  FROM      snowplow_intermediary.visitors_to_load_basic AS b
+  LEFT JOIN snowplow_intermediary.visitors_to_load_first AS f ON blended_user_id = f.blended_user_id
 );
