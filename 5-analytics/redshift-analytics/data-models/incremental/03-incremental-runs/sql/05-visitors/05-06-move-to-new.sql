@@ -13,17 +13,13 @@
 -- Copyright: Copyright (c) 2013-2015 Snowplow Analytics Ltd
 -- License: Apache License Version 2.0
 
--- The visitors_basic table has one row per visitor (in this batch) and contains basic information that
--- can be derived from a single table scan. The standard model identifies visitors using only a first party cookie,
--- but the blended_user_id can also be used with identity stitching.
+-- Events belonging to the same visitor can arrive at different times and could end up in different batches.
+-- Rows in the visitors_new table therefore have to be merged with those in the pivot table.
 
--- Events belonging to the same session can arrive at different times and could end up in different batches.
--- Rows in the sessions_new table therefore have to be merged with those in the pivot table.
+-- Insert all rows from visitors_old into visitors_new.
 
--- Insert all rows from sessions_old into sessions_new.
-
-INSERT INTO snowplow_intermediary.sessions_new (
+INSERT INTO snowplow_intermediary.visitors_new (
   SELECT
     *
-  FROM snowplow_intermediary.sessions_old
+  FROM snowplow_intermediary.visitors_old
 );

@@ -13,16 +13,35 @@
 -- Copyright: Copyright (c) 2013-2015 Snowplow Analytics Ltd
 -- License: Apache License Version 2.0
 
--- There is no in_progress table for visitors, because a visitor can always come back.
--- The visitors_new table will therefore have to be merged into the visitors pivot table.
+-- Events belonging to the same visitor can arrive at different times and could end up in different batches.
+-- Rows in the visitors_new table therefore have to be merged with those in the pivot table.
 
--- Next, load all entires from visitors_new that do NOT have corresponding entries in visitors_old.
+-- Move the consolidated visitors to the pivot table.
 
 INSERT INTO snowplow_pivots.visitors (
   SELECT
-    n.*
-  FROM snowplow_intermediary.visitors_new n
-  LEFT JOIN snowplow_intermediary.visitors_old o ON n.blended_user_id = o.blended_user_id
-  WHERE o.blended_user_id IS NULL -- Only copy over rows for visitors that do not feature in the old dataset
+    b.blended_user_id,
+    b.first_touch_tstamp,
+    b.last_touch_tstamp,
+    b.dvce_min_tstamp,
+    b.dvce_max_tstamp,
+    b.max_etl_tstamp,
+    b.event_count,
+    b.session_count,
+    b.page_view_count,
+    b.time_engaged_with_minutes,
+    f.landing_page_host,
+    f.landing_page_path,
+    f.mkt_source,
+    f.mkt_medium,
+    f.mkt_term,
+    f.mkt_content,
+    f.mkt_campaign,
+    f.refr_source,
+    f.refr_medium,
+    f.refr_term,
+    f.refr_urlhost,
+    f.refr_urlpath
+  FROM      snowplow_intermediary.sessions_to_load_basic AS b
+  LEFT JOIN snowplow_intermediary.sessions_to_load_first AS f ON blended_user_id = f.blended_user_id
 );
-
