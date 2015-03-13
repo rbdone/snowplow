@@ -13,11 +13,8 @@
 -- Copyright: Copyright (c) 2013-2015 Snowplow Analytics Ltd
 -- License: Apache License Version 2.0
 
--- Enrich events with unstructured events and inferred_user_id. First, join with unstructured events and
--- save the table with a different distkey to speed up successive joins.
-
--- This version does NOT join any unstructured events (a placeholder), but the WHERE clause does remove
--- events that should not be aggregated.
+-- Enrich events with unstructured events and inferred_user_id. First, join with unstructured events (on event_id)
+-- and save the table with a different distkey to speed up successive joins.
 
 DROP TABLE IF EXISTS snowplow_intermediary.events_enriched;
 CREATE TABLE snowplow_intermediary.events_enriched
@@ -28,11 +25,10 @@ AS (
     e.*
   FROM
     snowplow_landing.events e
-  WHERE e.domain_userid IS NOT NULL -- Do not aggregate NULL
+  WHERE e.etl_tstamp IN (SELECT etl_tstamp FROM snowplow_intermediary.etl_tstamps) -- Restrict to the current batch
+    AND e.domain_userid IS NOT NULL -- Do not aggregate NULL
     AND e.domain_sessionidx IS NOT NULL -- Do not aggregate NULL
     AND e.domain_userid != '' -- Do not aggregate missing domain_userids
-    AND e.etl_tstamp IN (SELECT etl_tstamp FROM snowplow_intermediary.distinct_etl_tstamps) -- Prevent processing data added after this batch started
-    AND e.collector_tstamp > '2000-01-01' -- Make sure collector_tstamp has a reasonable value, can otherwise cause SQL errors
-    AND e.collector_tstamp IS NOT NULL
-    AND e.dvce_tstamp IS NOT NULL -- Required, used to sort events
+    AND e.dvce_tstamp IS NOT NULL -- Required, dvce_tstamp is used to sort events
+    AND e.collector_tstamp > '1999-12-31' -- Remove incorrect collector_tstamps, can cause SQL errors
 );

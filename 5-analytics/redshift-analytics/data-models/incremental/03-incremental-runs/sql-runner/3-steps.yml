@@ -69,7 +69,7 @@
     :queries:
       - :name: 05-04-consolidate
         :file: snowplow/5-analytics/redshift-analytics/data-models/incremental/03-incremental-runs/sql/05-visitors/05-04-consolidate.sql
-- :name: 05-visitors
+  - :name: 05-visitors
     :queries:
       - :name: 05-05-move-to-new
         :file: snowplow/5-analytics/redshift-analytics/data-models/incremental/03-incremental-runs/sql/05-visitors/05-05-move-to-new.sql

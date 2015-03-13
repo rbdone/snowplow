@@ -20,9 +20,9 @@ BEGIN;
     SELECT
       *
     FROM snowplow_landing.events
-    WHERE etl_tstamp IN (SELECT etl_tstamp FROM snowplow_intermediary.distinct_etl_tstamps)
+    WHERE etl_tstamp IN (SELECT etl_tstamp FROM snowplow_intermediary.etl_tstamps)
   );
 
   DELETE FROM snowplow_landing.events
-  WHERE etl_tstamp IN (SELECT etl_tstamp FROM snowplow_intermediary.distinct_etl_tstamps);
+  WHERE etl_tstamp IN (SELECT etl_tstamp FROM snowplow_intermediary.etl_tstamps);
 COMMIT;
