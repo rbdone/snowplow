@@ -27,8 +27,8 @@ AS (
     atomic.events e
   WHERE e.domain_userid IS NOT NULL -- Do not aggregate NULL
     AND e.domain_sessionidx IS NOT NULL -- Do not aggregate NULL
-    AND e.domain_userid != '' -- Do not aggregate missing domain_userids
     AND e.dvce_tstamp IS NOT NULL -- Required, dvce_tstamp is used to sort events
+    AND e.domain_userid != '' -- Do not aggregate missing domain_userids
     AND e.collector_tstamp >= '{{.begin_tstamp}}' -- For SQL Runner (batched initial run)
     AND e.collector_tstamp < '{{.end_tstamp}}' -- For SQL Runner (batched initial run)
 );

@@ -28,7 +28,7 @@ AS (
   WHERE e.etl_tstamp IN (SELECT etl_tstamp FROM snowplow_intermediary.etl_tstamps) -- Restrict to the current batch
     AND e.domain_userid IS NOT NULL -- Do not aggregate NULL
     AND e.domain_sessionidx IS NOT NULL -- Do not aggregate NULL
-    AND e.domain_userid != '' -- Do not aggregate missing domain_userids
     AND e.dvce_tstamp IS NOT NULL -- Required, dvce_tstamp is used to sort events
-    AND e.collector_tstamp > '1999-12-31' -- Remove incorrect collector_tstamps, can cause SQL errors
+    AND e.domain_userid != '' -- Do not aggregate missing domain_userids
+    AND e.collector_tstamp > '2000-01-01' -- Remove incorrect collector_tstamps, can cause SQL errors
 );

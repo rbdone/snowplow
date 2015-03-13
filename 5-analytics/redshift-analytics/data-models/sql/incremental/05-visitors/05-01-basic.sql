@@ -31,7 +31,7 @@ AS (
     COUNT(*) AS event_count,
     MAX(domain_sessionidx) AS session_count,
     SUM(CASE WHEN event = 'page_view' THEN 1 ELSE 0 END) AS page_view_count,
-    COUNT(DISTINCT(FLOOR(EXTRACT (EPOCH FROM collector_tstamp)/30)))/2::FLOAT AS time_engaged_with_minutes
+    COUNT(DISTINCT(FLOOR(EXTRACT (EPOCH FROM dvce_tstamp)/30)))/2::FLOAT AS time_engaged_with_minutes
   FROM snowplow_intermediary.events_enriched_final
   GROUP BY 1
 );
