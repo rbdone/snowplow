@@ -3,14 +3,14 @@
     :queries:
       - :name: 01-etl-tstamps
         :file: snowplow/5-analytics/redshift-analytics/data-models/sql/incremental/01-etl-tstamps/01-etl-tstamps.sql
-  - :name: 03-events-enriched
+  - :name: 02-events-enriched
     :queries:
-      - :name: 03-01-join-unstructured
-        :file: snowplow/5-analytics/redshift-analytics/data-models/sql/incremental/03-events-enriched/03-01-join-unstructured.sql
-  - :name: 03-events-enriched
+      - :name: 02-01-join-unstructured
+        :file: snowplow/5-analytics/redshift-analytics/data-models/sql/incremental/02-events-enriched/02-01-join-unstructured.sql
+  - :name: 03-identity-stitching
     :queries:
-      - :name: 03-02-join-users
-        :file: snowplow/5-analytics/redshift-analytics/data-models/sql/incremental/03-events-enriched/03-02-join-users.sql
+      - :name: 03-XX-join-users
+        :file: snowplow/5-analytics/redshift-analytics/data-models/sql/incremental/03-identity-stitching/03-XX-join-users.sql
   - :name: 04-sessions
     :queries:
       - :name: 04-01-basic
