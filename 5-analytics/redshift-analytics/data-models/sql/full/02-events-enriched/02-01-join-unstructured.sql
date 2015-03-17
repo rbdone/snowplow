@@ -30,4 +30,7 @@ AS (
     AND e.domain_userid != '' -- Do not aggregate missing domain_userids
     AND e.dvce_tstamp IS NOT NULL -- Required, dvce_tstamp is used to sort events
     AND e.collector_tstamp > '2000-01-01' -- Remove incorrect collector_tstamps, can cause SQL errors
+    AND e.collector_tstamp < '2030-01-01' -- Remove incorrect collector_tstamps, can cause SQL errors
+    AND e.dvce_tstamp > '2000-01-01' -- Remove incorrect dvce_tstamps, can cause SQL errors
+    AND e.dvce_tstamp < '2030-01-01' -- Remove incorrect dvce_tstamps, can cause SQL errors    
 );

@@ -31,4 +31,6 @@ AS (
     AND e.domain_userid != '' -- Do not aggregate missing domain_userids
     AND e.collector_tstamp >= '{{.begin_tstamp}}' -- For SQL Runner (batched initial run)
     AND e.collector_tstamp < '{{.end_tstamp}}' -- For SQL Runner (batched initial run)
+    AND e.dvce_tstamp > '2000-01-01' -- Remove incorrect dvce_tstamps, can cause SQL errors
+    AND e.dvce_tstamp < '2030-01-01' -- Remove incorrect dvce_tstamps, can cause SQL errors 
 );
