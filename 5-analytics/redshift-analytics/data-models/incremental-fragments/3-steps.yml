@@ -51,10 +51,6 @@
     :queries:
       - :name: 04-12-backup
         :file: snowplow/5-analytics/redshift-analytics/data-models/sql/incremental/04-sessions/04-12-backup.sql
-  - :name: 04-sessions
-    :queries:
-      - :name: 04-13-move-to-pivot
-        :file: snowplow/5-analytics/redshift-analytics/data-models/sql/incremental/04-sessions/04-13-move-to-pivot.sql
   - :name: 05-visitors
     :queries:
       - :name: 05-01-basic
@@ -85,10 +81,6 @@
     :queries:
       - :name: 05-08-backup
         :file: snowplow/5-analytics/redshift-analytics/data-models/sql/incremental/05-visitors/05-08-backup.sql
-  - :name: 05-visitors
-    :queries:
-      - :name: 05-09-move-to-pivot
-        :file: snowplow/5-analytics/redshift-analytics/data-models/sql/incremental/05-visitors/05-09-move-to-pivot.sql
   - :name: 06-page-views
     :queries:
       - :name: 06-01-new
@@ -101,19 +93,27 @@
     :queries:
       - :name: 06-03-backup
         :file: snowplow/5-analytics/redshift-analytics/data-models/sql/incremental/06-page-views/06-03-backup.sql
-  - :name: 06-page-views
-    :queries:
-      - :name: 06-04-move-to-pivot
-        :file: snowplow/5-analytics/redshift-analytics/data-models/sql/incremental/06-page-views/06-04-move-to-pivot.sql
   - :name: 07-structured-events
     :queries:
       - :name: 07-01-structured-events
         :file: snowplow/5-analytics/redshift-analytics/data-models/sql/incremental/07-structured-events/07-01-structured-events.sql
-  - :name: 08-move-to-atomic
+  - :name: 08-move-to-pivot
     :queries:
-      - :name: 08-01-events
-        :file: snowplow/5-analytics/redshift-analytics/data-models/sql/incremental/08-move-to-atomic/08-01-events.sql
-  - :name: 09-vacuum
+      - :name: 08-01-move-sessions
+        :file: snowplow/5-analytics/redshift-analytics/data-models/sql/incremental/08-move-to-pivot/08-01-move-sessions.sql
+  - :name: 08-move-to-pivot
     :queries:
-      - :name: 09-vacuum
-        :file: snowplow/5-analytics/redshift-analytics/data-models/sql/incremental/09-vacuum/09-vacuum.sql
+      - :name: 08-02-move-visitors
+        :file: snowplow/5-analytics/redshift-analytics/data-models/sql/incremental/08-move-to-pivot/08-02-move-visitors.sql
+  - :name: 08-move-to-pivot
+    :queries:
+      - :name: 08-03-move-page-views
+        :file: snowplow/5-analytics/redshift-analytics/data-models/sql/incremental/08-move-to-pivot/08-03-move-page-views.sql
+  - :name: 09-move-to-atomic
+    :queries:
+      - :name: 09-01-events
+        :file: snowplow/5-analytics/redshift-analytics/data-models/sql/incremental/09-move-to-atomic/09-01-events.sql
+  - :name: 10-vacuum
+    :queries:
+      - :name: 10-vacuum
+        :file: snowplow/5-analytics/redshift-analytics/data-models/sql/incremental/10-vacuum/10-vacuum.sql
