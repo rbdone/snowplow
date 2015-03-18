@@ -21,8 +21,8 @@
 
 -- Select information associated with the last event in each session.
 
-DROP TABLE IF EXISTS snowplow_intermediary.sessions_to_load_last;
-CREATE TABLE snowplow_intermediary.sessions_to_load_last
+DROP TABLE IF EXISTS snowplow_intermediary.sessions_final_frame;
+CREATE TABLE snowplow_intermediary.sessions_final_frame
   DISTKEY (domain_userid) -- Optimized to join on other snowplow_intermediary.session_X tables
   SORTKEY (domain_userid, domain_sessionidx) -- Optimized to join on other snowplow_intermediary.session_X tables
 AS (
@@ -36,7 +36,7 @@ AS (
       a.exit_page_path,
       RANK() OVER (PARTITION BY a.domain_userid, a.domain_sessionidx ORDER BY a.exit_page_host, a.exit_page_path) AS rank
     FROM snowplow_intermediary.sessions_new AS a
-    INNER JOIN snowplow_intermediary.sessions_to_load_basic AS b
+    INNER JOIN snowplow_intermediary.sessions_aggregate_frame AS b
       ON  a.domain_userid = b.domain_userid
       AND a.domain_sessionidx = b.domain_sessionidx
       AND a.dvce_max_tstamp = b.dvce_max_tstamp -- Replaces the LAST VALUE window function in SQL

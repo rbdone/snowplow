@@ -18,8 +18,8 @@
 
 -- Select information associated with the first event for each visitor.
 
-DROP TABLE IF EXISTS snowplow_intermediary.visitors_to_load_first;
-CREATE TABLE snowplow_intermediary.visitors_to_load_first
+DROP TABLE IF EXISTS snowplow_intermediary.visitors_initial_frame;
+CREATE TABLE snowplow_intermediary.visitors_initial_frame
   DISTKEY (blended_user_id) -- Optimized to join on other snowplow_intermediary.visitors_X tables
   SORTKEY (blended_user_id) -- Optimized to join on other snowplow_intermediary.visitors_X tables
 AS (
@@ -44,7 +44,7 @@ AS (
         ORDER BY a.landing_page_host, a.landing_page_path, a.mkt_source, a.mkt_medium, a.mkt_term, a.mkt_content,
           a.mkt_campaign, a.refr_source, a.refr_medium, a.refr_term, a.refr_urlhost, a.refr_urlpath) AS rank
     FROM snowplow_intermediary.visitors_new AS a
-    INNER JOIN snowplow_intermediary.visitors_to_load_basic AS b
+    INNER JOIN snowplow_intermediary.visitors_aggregate_frame AS b
       ON  a.blended_user_id = b.blended_user_id
       AND a.dvce_min_tstamp = b.dvce_min_tstamp -- Replaces the FIRST VALUE window function in SQL
     GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13 -- Aggregate identital rows (that happen to have the same dvce_tstamp)

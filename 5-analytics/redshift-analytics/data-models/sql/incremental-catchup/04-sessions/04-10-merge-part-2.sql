@@ -21,8 +21,8 @@
 
 -- Select information associated with the first event in each session.
 
-DROP TABLE IF EXISTS snowplow_intermediary.sessions_to_load_first;
-CREATE TABLE snowplow_intermediary.sessions_to_load_first
+DROP TABLE IF EXISTS snowplow_intermediary.sessions_initial_frame;
+CREATE TABLE snowplow_intermediary.sessions_initial_frame
   DISTKEY (domain_userid) -- Optimized to join on other snowplow_intermediary.session_X tables
   SORTKEY (domain_userid, domain_sessionidx) -- Optimized to join on other snowplow_intermediary.session_X tables
 AS (
@@ -86,7 +86,7 @@ AS (
           a.br_features_silverlight, a.br_features_windowsmedia, a.br_cookies, a.os_name, a.os_family,
           a.os_manufacturer, a.os_timezone, a.dvce_type, a.dvce_ismobile, a.dvce_screenwidth, a.dvce_screenheight) AS rank
     FROM snowplow_intermediary.sessions_new AS a
-    INNER JOIN snowplow_intermediary.sessions_to_load_basic AS b
+    INNER JOIN snowplow_intermediary.sessions_aggregate_frame AS b
       ON  a.domain_userid = b.domain_userid
       AND a.domain_sessionidx = b.domain_sessionidx
       AND a.dvce_min_tstamp = b.dvce_min_tstamp -- Replaces the FIRST VALUE window function in SQL

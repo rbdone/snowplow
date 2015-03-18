@@ -45,7 +45,7 @@ BEGIN;
       f.refr_term,
       f.refr_urlhost,
       f.refr_urlpath
-    FROM      snowplow_intermediary.visitors_to_load_basic AS b
-    LEFT JOIN snowplow_intermediary.visitors_to_load_first AS f ON b.blended_user_id = f.blended_user_id
+    FROM      snowplow_intermediary.visitors_aggregate_frame AS b
+    LEFT JOIN snowplow_intermediary.visitors_initial_frame AS f ON b.blended_user_id = f.blended_user_id
   );
 COMMIT;

@@ -36,7 +36,7 @@ ANALYZE snowplow_pivots.page_views;
 VACUUM snowplow_pivots.structured_events;
 ANALYZE snowplow_pivots.structured_events;
 
--- Part 8
+-- Part 9
 
 VACUUM atomic.events;
 ANALYZE atomic.events;

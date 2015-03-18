@@ -21,8 +21,8 @@
 
 -- First, aggregate timestamps and counts per session.
 
-DROP TABLE IF EXISTS snowplow_intermediary.sessions_to_load_basic;
-CREATE TABLE snowplow_intermediary.sessions_to_load_basic
+DROP TABLE IF EXISTS snowplow_intermediary.sessions_aggregate_frame;
+CREATE TABLE snowplow_intermediary.sessions_aggregate_frame
   DISTKEY (domain_userid) -- Optimized to join on other snowplow_intermediary.session_X tables
   SORTKEY (domain_userid, domain_sessionidx) -- Optimized to join on other snowplow_intermediary.session_X tables
 AS (

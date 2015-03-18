@@ -18,8 +18,8 @@
 
 -- First, aggregate timestamps and counts per visitor.
 
-DROP TABLE IF EXISTS snowplow_intermediary.visitors_to_load_basic;
-CREATE TABLE snowplow_intermediary.visitors_to_load_basic
+DROP TABLE IF EXISTS snowplow_intermediary.visitors_aggregate_frame;
+CREATE TABLE snowplow_intermediary.visitors_aggregate_frame
   DISTKEY (blended_user_id) -- Optimized to join on other snowplow_intermediary.visitors_X tables
   SORTKEY (blended_user_id) -- Optimized to join on other snowplow_intermediary.visitors_X tables
 AS (
