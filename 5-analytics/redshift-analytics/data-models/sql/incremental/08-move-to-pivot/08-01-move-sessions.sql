@@ -83,8 +83,8 @@ BEGIN;
       f.dvce_ismobile,
       f.dvce_screenwidth,
       f.dvce_screenheight
-    FROM      snowplow_intermediary.sessions_to_load_basic AS b
-    LEFT JOIN snowplow_intermediary.sessions_to_load_first AS f ON b.domain_userid = f.domain_userid AND b.domain_sessionidx = f.domain_sessionidx
-    LEFT JOIN snowplow_intermediary.sessions_to_load_last  AS l ON b.domain_userid = l.domain_userid AND b.domain_sessionidx = l.domain_sessionidx
+    FROM      snowplow_intermediary.sessions_aggregate_frame AS b
+    LEFT JOIN snowplow_intermediary.sessions_initial_frame AS f ON b.domain_userid = f.domain_userid AND b.domain_sessionidx = f.domain_sessionidx
+    LEFT JOIN snowplow_intermediary.sessions_final_frame AS l ON b.domain_userid = l.domain_userid AND b.domain_sessionidx = l.domain_sessionidx
   );
 COMMIT;
