@@ -16,7 +16,7 @@
 -- Create the snowplow_pivots.visitors table:
 CREATE TABLE IF NOT EXISTS snowplow_pivots.visitors (
   blended_user_id varchar(255) encode runlength,
-	first_touch_tstamp timestamp,
+  first_touch_tstamp timestamp,
   last_touch_tstamp timestamp,
   dvce_min_tstamp timestamp,
   dvce_max_tstamp timestamp,
