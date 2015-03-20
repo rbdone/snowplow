@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS snowplow_pivots.page_views (
   domain_sessionidx smallint,
   page_urlhost varchar(255) encode text255,
   page_urlpath varchar(1000) encode text32k,
-	first_touch_tstamp timestamp,
+  first_touch_tstamp timestamp,
   last_touch_tstamp timestamp,
   dvce_min_tstamp timestamp,
   dvce_max_tstamp timestamp,
