@@ -124,18 +124,8 @@
         :template: true
   - :name: 08-move-to-pivot
     :queries:
-      - :name: 08-01-move-sessions
-        :file: snowplow/5-analytics/redshift-analytics/data-models/sql/incremental-catchup/08-move-to-pivot/08-01-move-sessions.sql
-        :template: true
-  - :name: 08-move-to-pivot
-    :queries:
-      - :name: 08-02-move-visitors
-        :file: snowplow/5-analytics/redshift-analytics/data-models/sql/incremental-catchup/08-move-to-pivot/08-02-move-visitors.sql
-        :template: true
-  - :name: 08-move-to-pivot
-    :queries:
-      - :name: 08-03-move-page-views
-        :file: snowplow/5-analytics/redshift-analytics/data-models/sql/incremental-catchup/08-move-to-pivot/08-03-move-page-views.sql
+      - :name: 08-01-move-to-pivot
+        :file: snowplow/5-analytics/redshift-analytics/data-models/sql/incremental-catchup/08-move-to-pivot/08-01-move-to-pivot.sql
         :template: true
   - :name: 10-vacuum
     :queries:
