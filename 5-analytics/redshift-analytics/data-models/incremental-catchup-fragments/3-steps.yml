@@ -114,8 +114,18 @@
         :template: true
   - :name: 06-page-views
     :queries:
-      - :name: 06-03-backup
-        :file: snowplow/5-analytics/redshift-analytics/data-models/sql/incremental-catchup/06-page-views/06-03-backup.sql
+      - :name: 06-03-merge-part-1
+        :file: snowplow/5-analytics/redshift-analytics/data-models/sql/incremental-catchup/06-page-views/06-03-merge-part-1.sql
+        :template: true
+  - :name: 06-page-views
+    :queries:
+      - :name: 06-04-merge-part-3
+        :file: snowplow/5-analytics/redshift-analytics/data-models/sql/incremental-catchup/06-page-views/06-04-merge-part-3.sql
+        :template: true
+  - :name: 06-page-views
+    :queries:
+      - :name: 06-05-backup
+        :file: snowplow/5-analytics/redshift-analytics/data-models/sql/incremental-catchup/06-page-views/06-05-backup.sql
         :template: true
   - :name: 07-structured-events
     :queries:
