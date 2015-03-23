@@ -26,8 +26,8 @@ BEGIN;
 
   INSERT INTO snowplow_pivots.sessions (
     SELECT
-      b.blended_user_id,
-      b.inferred_user_id,
+      l.blended_user_id,
+      l.inferred_user_id,
       b.domain_userid,
       b.domain_sessionidx,
       b.session_start_tstamp,
@@ -136,22 +136,26 @@ BEGIN;
 
   INSERT INTO snowplow_pivots.page_views (
     SELECT
-      blended_user_id,
-      inferred_user_id,
-      domain_userid,
-      domain_sessionidx,
-      page_urlhost,
-      page_urlpath,
-      MIN(first_touch_tstamp) AS first_touch_tstamp,
-      MAX(last_touch_tstamp) AS last_touch_tstamp,
-      MIN(dvce_min_tstamp) AS dvce_min_tstamp, -- Used to replace SQL window functions
-      MAX(dvce_max_tstamp) AS dvce_max_tstamp, -- Used to replace SQL window functions
-      MAX(max_etl_tstamp) AS max_etl_tstamp, -- Used for debugging
-      SUM(event_count) AS event_count,
-      SUM(page_view_count) AS page_view_count,
-      SUM(page_ping_count) AS page_ping_count,
-      SUM(time_engaged_with_minutes) AS time_engaged_with_minutes
-    FROM snowplow_intermediary.page_views_new
-    GROUP BY 1,2,3,4,5,6
+      f.blended_user_id,
+      f.inferred_user_id,
+      a.domain_userid,
+      a.domain_sessionidx,
+      a.page_urlhost,
+      a.page_urlpath,
+      a.first_touch_tstamp,
+      a.last_touch_tstamp,
+      a.dvce_min_tstamp, -- Used to replace SQL window functions
+      a.dvce_max_tstamp, -- Used to replace SQL window functions
+      a.max_etl_tstamp, -- Used for debugging
+      a.event_count,
+      a.page_view_count,
+      a.page_ping_count,
+      a.time_engaged_with_minutes
+    FROM snowplow_intermediary.page_views_aggregate_frame AS a
+    LEFT JOIN snowplow_intermediary.page_views_final_frame AS f
+      ON  a.domain_userid = f.domain_userid
+      AND a.domain_sessionidx = f.domain_sessionidx
+      AND a.page_urlhost = f.page_urlhost
+      AND a.page_urlpath = f.page_urlpath
   );
 COMMIT;
