@@ -38,5 +38,7 @@ AS (
     SUM(CASE WHEN event = 'page_ping' THEN 1 ELSE 0 END) AS page_ping_count,
     COUNT(DISTINCT(FLOOR(EXTRACT (EPOCH FROM dvce_tstamp)/30)))/2::FLOAT AS time_engaged_with_minutes
   FROM snowplow_intermediary.events_enriched_final
+  WHERE page_urlhost IS NOT NULL -- Remove incorrect page views (and prevent issues in merge-part-3)
+    AND page_urlpath IS NOT NULL -- Remove incorrect page views (and prevent issues in merge-part-3)
   GROUP BY 1,2,3,4,5,6
-  );
+);

@@ -27,8 +27,6 @@ CREATE TABLE snowplow_intermediary.sessions_aggregate_frame
   SORTKEY (domain_userid, domain_sessionidx) -- Optimized to join on other snowplow_intermediary.session_X tables
 AS (
   SELECT
-    blended_user_id,
-    inferred_user_id,
     domain_userid,
     domain_sessionidx,
     MIN(session_start_tstamp) AS session_start_tstamp,
@@ -39,5 +37,5 @@ AS (
     SUM(event_count) AS event_count,
     SUM(time_engaged_with_minutes) AS time_engaged_with_minutes
   FROM snowplow_intermediary.sessions_new
-  GROUP BY 1,2,3,4
+  GROUP BY 1,2
 );
