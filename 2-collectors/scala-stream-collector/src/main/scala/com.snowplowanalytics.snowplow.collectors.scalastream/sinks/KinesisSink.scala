@@ -140,7 +140,7 @@ class KinesisSink(config: CollectorConfig) extends AbstractSink {
   private def createKinesisClient: Client = {
     val accessKey = config.awsAccessKey
     val secretKey = config.awsSecretKey
-    debug("***CREATE_KINESIS_CLIENT*** 1:" + accessKey + "  2:" + secretKey)
+    error("***CREATE_KINESIS_CLIENT*** 1:" + accessKey + "  2:" + secretKey)
     
     val client = if (isCpf(accessKey) && isCpf(secretKey)) {
       new AmazonKinesisClient(new ClasspathPropertiesFileCredentialsProvider())
