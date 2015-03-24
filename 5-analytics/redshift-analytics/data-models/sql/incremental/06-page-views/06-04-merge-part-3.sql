@@ -21,7 +21,7 @@
 DROP TABLE IF EXISTS snowplow_intermediary.page_views_final_frame;
 CREATE TABLE snowplow_intermediary.page_views_final_frame
   DISTKEY (domain_userid) -- Optimized to join on other snowplow_intermediary.page_views_X tables
-  SORTKEY (domain_userid, domain_sessionidx, first_touch_tstamp) -- Optimized to join on other snowplow_intermediary.page_views_X tables
+  SORTKEY (domain_userid, domain_sessionidx) -- Optimized to join on other snowplow_intermediary.page_views_X tables
 AS (
   SELECT
     *
