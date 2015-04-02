@@ -41,6 +41,10 @@ object SnowplowKinesisEnrichBuild extends Build {
         Libraries.scalazon,
         Libraries.json4sJackson,
         Libraries.collectorPayload
+      ),
+
+      resolvers ++= Seq(
+        "Twitter Maven" at "http://maven.twttr.com"
       )
     )
 }
